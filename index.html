@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Let's Party!</title>
+    <style>
+      body {
+        background-color: hotpink;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 100px;
+      }
+
+      h1 {
+        font-size: 80px;
+        color: white;
+      }
+
+      button {
+        font-size: 24px;
+        padding: 15px 30px;
+        background-color: white;
+        color: hotpink;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      button:hover {
+        background-color: #ffe0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="message">Let's Party!</h1>
+    <button onclick="changeText()">Click me!</button>
+
+    <script>
+      function changeText() {
+        var messages = [
+          "Let's Party!",
+          "Woohoo! 🎉",
+          "You clicked it!",
+          "Party time! 🎊",
+          "Keep clicking! 🕺"
+        ];
+
+        var current = document.getElementById("message").innerText;
+        var next = messages[(messages.indexOf(current) + 1) % messages.length];
+        document.getElementById("message").innerText = next;
+      }
+    </script>
+  </body>
+</html>
