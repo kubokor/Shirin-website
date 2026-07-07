@@ -15,7 +15,7 @@
         color: white;
       }
 
-      button {
+      button, a.quiz-link {
         font-size: 24px;
         padding: 15px 30px;
         background-color: white;
@@ -24,17 +24,26 @@
         border-radius: 10px;
         cursor: pointer;
         margin-top: 20px;
+        display: inline-block;
+        text-decoration: none;
       }
 
-      button:hover {
+      button:hover, a.quiz-link:hover {
         background-color: #ffe0f0;
+      }
+
+      .quiz-link {
+        display: block;
+        width: fit-content;
+        margin: 20px auto 0;
       }
     </style>
   </head>
   <body>
-    <img src="dance.gif" alt="Dancing GIF" width="300">
     <h1 id="message">Let's Party!</h1>
     <button onclick="changeText()">Click me!</button>
+    <br />
+    <a class="quiz-link" href="quiz.html">Take the "What Animal Are You?" quiz!</a>
 
     <script>
       function changeText() {

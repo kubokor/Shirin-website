@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Animal Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ff6ec7, #ff9a56, #6ec6ff, #7bed9f);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 50px;
+        color: white;
+        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #ff6ec7;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #ff6ec7;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #6ec6ff;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Animal Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. How do you spend a free weekend?</h2>
+        <button class="choice" onclick="choose('wolf')">Exploring the outdoors</button>
+        <button class="choice" onclick="choose('cat')">Relaxing alone with a book</button>
+        <button class="choice" onclick="choose('dolphin')">Hanging out with friends</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. Pick a trait you value most.</h2>
+        <button class="choice" onclick="choose('cat')">Independence</button>
+        <button class="choice" onclick="choose('dolphin')">Friendliness</button>
+        <button class="choice" onclick="choose('owl')">Wisdom</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. Choose a place to hang out.</h2>
+        <button class="choice" onclick="choose('wolf')">A forest with the pack</button>
+        <button class="choice" onclick="choose('dolphin')">A sunny beach with friends</button>
+        <button class="choice" onclick="choose('owl')">A quiet library</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. Pick a word that describes you.</h2>
+        <button class="choice" onclick="choose('wolf')">Brave</button>
+        <button class="choice" onclick="choose('cat')">Clever</button>
+        <button class="choice" onclick="choose('owl')">Thoughtful</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { wolf: 0, cat: 0, dolphin: 0, owl: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 4;
+
+      var animalInfo = {
+        wolf: { title: "You are a Wolf! 🐺", desc: "Brave and loyal." },
+        cat: { title: "You are a Cat! 🐱", desc: "Clever and independent." },
+        dolphin: { title: "You are a Dolphin! 🐬", desc: "Playful and friendly." },
+        owl: { title: "You are an Owl! 🦉", desc: "Thoughtful and wise." }
+      };
+
+      function choose(animal) {
+        scores[animal]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "wolf";
+        for (var animal in scores) {
+          if (scores[animal] > scores[winner]) {
+            winner = animal;
+          }
+        }
+
+        document.getElementById("result-title").innerText = animalInfo[winner].title;
+        document.getElementById("result-desc").innerText = animalInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { wolf: 0, cat: 0, dolphin: 0, owl: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
