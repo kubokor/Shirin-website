@@ -50,15 +50,77 @@
         width: fit-content;
         margin: 20px auto 0;
       }
+
+      .quiz-columns {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .quiz-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 200px;
+        padding-top: 10px;
+      }
+
+      .side-quiz-link {
+        font-size: 18px;
+        padding: 14px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      }
+
+      .side-quiz-link:hover {
+        opacity: 0.85;
+      }
+
+      .side-quiz-link.dog-quiz {
+        background-color: hotpink;
+        width: 90px;
+        height: 90px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .side-quiz-link.dog-quiz svg {
+        width: 46px;
+        height: 42px;
+      }
     </style>
   </head>
   <body>
-    <div class="card">
-      <img src="dance.gif" alt="Dancing gif" width="300" />
-      <h1 id="message">Let's Party!</h1>
-      <button onclick="changeText()">Click me!</button>
-      <br />
-      <a class="quiz-link" href="quiz.html">Take the "What Animal Are You?" quiz!</a>
+    <div class="quiz-columns">
+      <div class="quiz-column quiz-column-left"></div>
+
+      <div class="card">
+        <img src="dance.gif" alt="Dancing gif" width="300" />
+        <h1 id="message">Let's Party!</h1>
+        <button onclick="changeText()">Click me!</button>
+        <br />
+        <a class="quiz-link" href="quiz.html">Take the "What Animal Are You?" quiz!</a>
+      </div>
+
+      <div class="quiz-column quiz-column-right">
+        <a class="side-quiz-link dog-quiz" href="dog-quiz.html" title="What Dog Are You?" aria-label="What Dog Are You? quiz">
+          <svg viewBox="0 0 64 58" xmlns="http://www.w3.org/2000/svg" fill="white">
+            <ellipse cx="32" cy="42" rx="15" ry="12"/>
+            <ellipse cx="12" cy="22" rx="7" ry="9" transform="rotate(-20 12 22)"/>
+            <ellipse cx="24" cy="10" rx="6.5" ry="8.5" transform="rotate(-8 24 10)"/>
+            <ellipse cx="40" cy="10" rx="6.5" ry="8.5" transform="rotate(8 40 10)"/>
+            <ellipse cx="52" cy="22" rx="7" ry="9" transform="rotate(20 52 22)"/>
+          </svg>
+        </a>
+      </div>
     </div>
 
     <script>
