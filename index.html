@@ -67,6 +67,20 @@
         padding-top: 10px;
       }
 
+      .quiz-column-right {
+        height: 100vh;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 0;
+        padding-top: 0;
+      }
+
+      .side-quiz-link-placeholder {
+        width: 90px;
+        height: 90px;
+        visibility: hidden;
+      }
+
       .side-quiz-link {
         font-size: 18px;
         padding: 14px 20px;
@@ -96,6 +110,23 @@
         width: 46px;
         height: 42px;
       }
+
+      .side-quiz-link.element-quiz {
+        background-color: hotpink;
+        width: 90px;
+        height: 90px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .side-quiz-link.element-quiz svg {
+        width: 46px;
+        height: 46px;
+      }
     </style>
   </head>
   <body>
@@ -120,6 +151,15 @@
             <ellipse cx="52" cy="22" rx="7" ry="9" transform="rotate(20 52 22)"/>
           </svg>
         </a>
+
+        <a class="side-quiz-link element-quiz" href="element-quiz.html" title="What Element Are You?" aria-label="What Element Are You? quiz">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+            <path d="M32 6 C34 20 44 30 58 32 C44 34 34 44 32 58 C30 44 20 34 6 32 C20 30 30 20 32 6 Z"/>
+            <path d="M50 4 C50.8 9 54 12.2 59 13 C54 13.8 50.8 17 50 22 C49.2 17 46 13.8 41 13 C46 12.2 49.2 9 50 4 Z"/>
+          </svg>
+        </a>
+
+        <div class="side-quiz-link-placeholder"></div>
       </div>
     </div>
 

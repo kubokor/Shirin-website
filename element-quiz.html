@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Element Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ff7e5f, #4facfe, #43e97b, #6a5acd, #a1c4fd);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 50px;
+        color: white;
+        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #5e548e;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #5e548e;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #38a3a5;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Element Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. How do you react when things don't go your way?</h2>
+        <button class="choice" onclick="choose('fire')">I get fired up fast, but I bounce back quickly</button>
+        <button class="choice" onclick="choose('water')">I take a deep breath and stay steady</button>
+        <button class="choice" onclick="choose('ice')">I keep it bottled up and process it alone</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. Pick a weekend plan.</h2>
+        <button class="choice" onclick="choose('storm')">Running around outside all day, no real plan</button>
+        <button class="choice" onclick="choose('earth')">Hanging out with family, maybe a cookout</button>
+        <button class="choice" onclick="choose('water')">Curling up with a hobby I love</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. How would your friends describe you?</h2>
+        <button class="choice" onclick="choose('fire')">Brave and a little wild</button>
+        <button class="choice" onclick="choose('earth')">Kind-hearted, an animal lover</button>
+        <button class="choice" onclick="choose('ice')">Guarded until you really get to know me</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. Pick a trait that fits you.</h2>
+        <button class="choice" onclick="choose('storm')">Messy but full of energy</button>
+        <button class="choice" onclick="choose('water')">Calm and relaxed</button>
+        <button class="choice" onclick="choose('ice')">Protective of people I care about</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. What's your idea of a good time?</h2>
+        <button class="choice" onclick="choose('fire')">Something spontaneous and a little reckless</button>
+        <button class="choice" onclick="choose('earth')">Quality time with close friends and family</button>
+        <button class="choice" onclick="choose('storm')">Running wild outdoors, no fear</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. How do you handle your emotions?</h2>
+        <button class="choice" onclick="choose('fire')">They show fast — short fuse, quick to cool down</button>
+        <button class="choice" onclick="choose('ice')">I keep them private until I trust someone</button>
+        <button class="choice" onclick="choose('water')">I stay pretty even-keeled</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { fire: 0, water: 0, earth: 0, storm: 0, ice: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var elementInfo = {
+        fire: { title: "You're Fire! 🔥", desc: "You have a short fuse, but you're still wild and fun, and also very brave!" },
+        water: { title: "You're Water! 💧", desc: "You are always calm and relaxed, you spend free time doing hobbies." },
+        earth: { title: "You're Earth! 🌍", desc: "You are very kind and love animals, you like to have a fun time with your friends and family." },
+        storm: { title: "You're Storm! ⛈️", desc: "You get overexcited most of the time, you have no fear. You love running around outdoors, and you are usually kind of messy!" },
+        ice: { title: "You're Ice! ❄️", desc: "You are protective and keep things to yourself, but your true friends help you be a better person and understand yourself." }
+      };
+
+      function choose(element) {
+        scores[element]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "fire";
+        for (var element in scores) {
+          if (scores[element] > scores[winner]) {
+            winner = element;
+          }
+        }
+
+        document.getElementById("result-title").innerText = elementInfo[winner].title;
+        document.getElementById("result-desc").innerText = elementInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { fire: 0, water: 0, earth: 0, storm: 0, ice: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
