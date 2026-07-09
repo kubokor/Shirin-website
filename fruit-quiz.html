@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Which Fruit Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ff9a76, #ffd76b, #a8e063, #ff6fa7);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 50px;
+        color: white;
+        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #ff6f61;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #ff6f61;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #2ec4b6;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Which Fruit Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. How would you describe your personality?</h2>
+        <button class="choice" onclick="choose('apple')">Original, sweet, but I've got an edge</button>
+        <button class="choice" onclick="choose('grapes')">Happy all the time, I stand out in a crowd</button>
+        <button class="choice" onclick="choose('peach')">Relaxed and easygoing, just enough sweetness</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. Pick a way to spend a party.</h2>
+        <button class="choice" onclick="choose('pineapple')">Being the wildcard who starts the chaos</button>
+        <button class="choice" onclick="choose('banana')">Listening patiently while everyone shares their stories</button>
+        <button class="choice" onclick="choose('grapes')">Standing out on the dance floor, happy as ever</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. How do you handle a tough day?</h2>
+        <button class="choice" onclick="choose('banana')">Stay patient and kind, let it roll off</button>
+        <button class="choice" onclick="choose('apple')">Get a little sour, but still sweet deep down</button>
+        <button class="choice" onclick="choose('pineapple')">Turn it into chaos and just laugh it off</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. Pick a trait that fits you.</h2>
+        <button class="choice" onclick="choose('peach')">Soft, creamy, and calming to be around</button>
+        <button class="choice" onclick="choose('pineapple')">Crazy cool, thrives in chaos</button>
+        <button class="choice" onclick="choose('apple')">Original — there's no one else quite like me</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. What's your role in a friend group?</h2>
+        <button class="choice" onclick="choose('banana')">The one everyone comes to vent to</button>
+        <button class="choice" onclick="choose('grapes')">The one who lights up the room, always happy</button>
+        <button class="choice" onclick="choose('pineapple')">The one who brings unexpected chaos and fun</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. Pick a vibe.</h2>
+        <button class="choice" onclick="choose('apple')">Sweet with a little sourness sometimes</button>
+        <button class="choice" onclick="choose('grapes')">Standing out without even trying</button>
+        <button class="choice" onclick="choose('peach')">Soft, relaxed, just enough sweetness</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { apple: 0, grapes: 0, peach: 0, banana: 0, pineapple: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var fruitInfo = {
+        apple: { title: "You're an Apple! 🍎", desc: "You're original, sweet and sometimes sour." },
+        grapes: { title: "You're Grapes! 🍇", desc: "You stand out, happy all the time." },
+        peach: { title: "You're a Peach! 🍑", desc: "Soft and creamy, relaxing with just enough sweetness." },
+        banana: { title: "You're a Banana! 🍌", desc: "Patient and kind, a good listener." },
+        pineapple: { title: "You're a Pineapple! 🍍", desc: "Crazy cool and loves chaos!" }
+      };
+
+      function choose(fruit) {
+        scores[fruit]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "apple";
+        for (var fruit in scores) {
+          if (scores[fruit] > scores[winner]) {
+            winner = fruit;
+          }
+        }
+
+        document.getElementById("result-title").innerText = fruitInfo[winner].title;
+        document.getElementById("result-desc").innerText = fruitInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { apple: 0, grapes: 0, peach: 0, banana: 0, pineapple: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

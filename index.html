@@ -67,7 +67,8 @@
         padding-top: 10px;
       }
 
-      .quiz-column-right {
+      .quiz-column-right,
+      .quiz-column-left {
         height: 100vh;
         justify-content: space-evenly;
         align-items: center;
@@ -144,11 +145,40 @@
         width: 40px;
         height: 40px;
       }
+
+      .side-quiz-link.fruit-quiz {
+        background-color: hotpink;
+        width: 90px;
+        height: 90px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .side-quiz-link.fruit-quiz svg {
+        width: 44px;
+        height: 44px;
+      }
     </style>
   </head>
   <body>
     <div class="quiz-columns">
-      <div class="quiz-column quiz-column-left"></div>
+      <div class="quiz-column quiz-column-left">
+        <a class="side-quiz-link fruit-quiz" href="fruit-quiz.html" title="Which Fruit Are You?" aria-label="Which Fruit Are You? quiz">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+            <path d="M46,8 C56,10 62,18 58,26 C52,40 34,38 26,52 C20,60 14,58 16,50 C20,36 34,30 38,18 C40,12 43,9 46,8 Z"/>
+            <circle cx="55" cy="15" r="4"/>
+            <circle cx="61" cy="22" r="3.5"/>
+            <circle cx="53" cy="24" r="3"/>
+          </svg>
+        </a>
+
+        <div class="side-quiz-link-placeholder"></div>
+        <div class="side-quiz-link-placeholder"></div>
+      </div>
 
       <div class="card">
         <img src="dance.gif" alt="Dancing gif" width="300" />
