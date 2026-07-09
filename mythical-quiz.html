@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Mythical Creature Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2c003e, #512b58, #1b4965);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 44px;
+        color: #f4c430;
+        text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #6a4c93;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #b8860b;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #118ab2;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Mythical Creature Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. How do you handle a challenge?</h2>
+        <button class="choice" onclick="choose('griffin')">Charge in head-on, strong and brave</button>
+        <button class="choice" onclick="choose('kirin')">Think it through carefully, drawing on what I know</button>
+        <button class="choice" onclick="choose('phoenix')">Burn through it with fierce determination</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. Pick a trait that fits you.</h2>
+        <button class="choice" onclick="choose('dragon')">Honest and loyal to the end</button>
+        <button class="choice" onclick="choose('leviathan')">A little chaotic, but full of energy</button>
+        <button class="choice" onclick="choose('kirin')">Wise beyond your years</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. What's your role in a crisis?</h2>
+        <button class="choice" onclick="choose('griffin')">The strong one everyone leans on</button>
+        <button class="choice" onclick="choose('phoenix')">The one fighting for what's right, no matter the cost</button>
+        <button class="choice" onclick="choose('leviathan')">The unpredictable force nobody saw coming</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. How do others describe your presence?</h2>
+        <button class="choice" onclick="choose('dragon')">Steady, faithful, someone people trust</button>
+        <button class="choice" onclick="choose('kirin')">Wise and thoughtful, always has the answer</button>
+        <button class="choice" onclick="choose('leviathan')">Untamed and unpredictable, full of chaos</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. Pick a way you show strength.</h2>
+        <button class="choice" onclick="choose('griffin')">Bold and brave, like a lion in battle</button>
+        <button class="choice" onclick="choose('phoenix')">Rising back up no matter how many times you fall</button>
+        <button class="choice" onclick="choose('dragon')">Standing firm in your beliefs and loyalty</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. What do people notice about you first?</h2>
+        <button class="choice" onclick="choose('phoenix')">Your fierce, fiery energy</button>
+        <button class="choice" onclick="choose('kirin')">Your calm wisdom</button>
+        <button class="choice" onclick="choose('leviathan')">Your wild, unpredictable side</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { griffin: 0, kirin: 0, phoenix: 0, leviathan: 0, dragon: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var creatureInfo = {
+        griffin: { title: "You're a Griffin! 🦁", desc: "Like a lion, strong and brave." },
+        kirin: { title: "You're a Kirin! 🦌", desc: "Knowledgeable and wise, with its deer-like antlers pronging the air." },
+        phoenix: { title: "You're a Phoenix! 🐦‍🔥", desc: "Fiery and feisty, bird-like talons gripping the edge of justice." },
+        leviathan: { title: "You're a Leviathan! 🐙", desc: "A chaotic sea creature, its multiple tails flowing behind it." },
+        dragon: { title: "You're a Dragon! 🐉", desc: "Honest and loyal, its eyes smoking with faith." }
+      };
+
+      function choose(creature) {
+        scores[creature]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "griffin";
+        for (var creature in scores) {
+          if (scores[creature] > scores[winner]) {
+            winner = creature;
+          }
+        }
+
+        document.getElementById("result-title").innerText = creatureInfo[winner].title;
+        document.getElementById("result-desc").innerText = creatureInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { griffin: 0, kirin: 0, phoenix: 0, leviathan: 0, dragon: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
