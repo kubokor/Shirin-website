@@ -83,6 +83,25 @@
         visibility: hidden;
       }
 
+      .quiz-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .quiz-label {
+        font-size: 13px;
+        color: hotpink;
+        max-width: 140px;
+      }
+
+      .intro-label {
+        font-size: 15px;
+        color: hotpink;
+        margin: 0;
+      }
+
       @media (max-width: 700px) {
         .quiz-column-right,
         .quiz-column-left {
@@ -211,39 +230,57 @@
         width: 44px;
         height: 44px;
       }
+
+      .site-title {
+        font-size: 32px;
+        color: hotpink;
+        margin: 0 0 20px;
+      }
     </style>
   </head>
   <body>
+    <h2 class="site-title">Made by a kind and caring person! (Who loves parties)</h2>
+
     <div class="quiz-columns">
       <div class="quiz-column quiz-column-left">
-        <a class="side-quiz-link fruit-quiz" href="fruit-quiz.html" title="Which Fruit Are You?" aria-label="Which Fruit Are You? quiz">
-          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <path d="M46,8 C56,10 62,18 58,26 C52,40 34,38 26,52 C20,60 14,58 16,50 C20,36 34,30 38,18 C40,12 43,9 46,8 Z"/>
-            <circle cx="55" cy="15" r="4"/>
-            <circle cx="61" cy="22" r="3.5"/>
-            <circle cx="53" cy="24" r="3"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "Which Fruit Are You?" quiz!</span>
+          <a class="side-quiz-link fruit-quiz" href="fruit-quiz.html" title="Which Fruit Are You?" aria-label="Which Fruit Are You? quiz">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <path d="M46,8 C56,10 62,18 58,26 C52,40 34,38 26,52 C20,60 14,58 16,50 C20,36 34,30 38,18 C40,12 43,9 46,8 Z"/>
+              <circle cx="55" cy="15" r="4"/>
+              <circle cx="61" cy="22" r="3.5"/>
+              <circle cx="53" cy="24" r="3"/>
+            </svg>
+          </a>
+        </div>
 
-        <a class="side-quiz-link monster-quiz" href="monster-quiz.html" title="What Classic Monster Are You?" aria-label="What Classic Monster Are You? quiz">
-          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <path d="M4,32 Q32,2 60,32 Q32,62 4,32 Z"/>
-            <ellipse cx="32" cy="32" rx="5" ry="15" fill="hotpink"/>
-            <path d="M10,18 Q32,4 54,18" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "What Classic Monster Are You?" quiz!</span>
+          <a class="side-quiz-link monster-quiz" href="monster-quiz.html" title="What Classic Monster Are You?" aria-label="What Classic Monster Are You? quiz">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <path d="M4,32 Q32,2 60,32 Q32,62 4,32 Z"/>
+              <ellipse cx="32" cy="32" rx="5" ry="15" fill="hotpink"/>
+              <path d="M10,18 Q32,4 54,18" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+            </svg>
+          </a>
+        </div>
 
-        <a class="side-quiz-link mythical-quiz" href="mythical-quiz.html" title="What Mythical Creature Are You?" aria-label="What Mythical Creature Are You? quiz">
-          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <circle cx="32" cy="34" r="22"/>
-            <ellipse cx="24" cy="24" rx="6" ry="9" fill="hotpink" transform="rotate(-20 24 24)"/>
-            <path d="M50,8 C50.6,12 53,14.4 57,15 C53,15.6 50.6,18 50,22 C49.4,18 47,15.6 43,15 C47,14.4 49.4,12 50,8 Z"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "What Mythical Creature Are You?" quiz!</span>
+          <a class="side-quiz-link mythical-quiz" href="mythical-quiz.html" title="What Mythical Creature Are You?" aria-label="What Mythical Creature Are You? quiz">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <circle cx="32" cy="34" r="22"/>
+              <ellipse cx="24" cy="24" rx="6" ry="9" fill="hotpink" transform="rotate(-20 24 24)"/>
+              <path d="M50,8 C50.6,12 53,14.4 57,15 C53,15.6 50.6,18 50,22 C49.4,18 47,15.6 43,15 C47,14.4 49.4,12 50,8 Z"/>
+            </svg>
+          </a>
+        </div>
       </div>
 
       <div class="card">
         <img src="dance.gif" alt="Dancing gif" width="300" />
+        <p class="intro-label">(Press the buttons to take the quizzes!)</p>
         <h1 id="message">Let's Party!</h1>
         <button onclick="changeText()">Click me!</button>
         <br />
@@ -251,32 +288,41 @@
       </div>
 
       <div class="quiz-column quiz-column-right">
-        <a class="side-quiz-link dog-quiz" href="dog-quiz.html" title="What Dog Are You?" aria-label="What Dog Are You? quiz">
-          <svg viewBox="0 0 64 58" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <ellipse cx="32" cy="42" rx="15" ry="12"/>
-            <ellipse cx="12" cy="22" rx="7" ry="9" transform="rotate(-20 12 22)"/>
-            <ellipse cx="24" cy="10" rx="6.5" ry="8.5" transform="rotate(-8 24 10)"/>
-            <ellipse cx="40" cy="10" rx="6.5" ry="8.5" transform="rotate(8 40 10)"/>
-            <ellipse cx="52" cy="22" rx="7" ry="9" transform="rotate(20 52 22)"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "What Dog Are You?" quiz!</span>
+          <a class="side-quiz-link dog-quiz" href="dog-quiz.html" title="What Dog Are You?" aria-label="What Dog Are You? quiz">
+            <svg viewBox="0 0 64 58" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <ellipse cx="32" cy="42" rx="15" ry="12"/>
+              <ellipse cx="12" cy="22" rx="7" ry="9" transform="rotate(-20 12 22)"/>
+              <ellipse cx="24" cy="10" rx="6.5" ry="8.5" transform="rotate(-8 24 10)"/>
+              <ellipse cx="40" cy="10" rx="6.5" ry="8.5" transform="rotate(8 40 10)"/>
+              <ellipse cx="52" cy="22" rx="7" ry="9" transform="rotate(20 52 22)"/>
+            </svg>
+          </a>
+        </div>
 
-        <a class="side-quiz-link element-quiz" href="element-quiz.html" title="What Element Are You?" aria-label="What Element Are You? quiz">
-          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <path d="M32 6 C34 20 44 30 58 32 C44 34 34 44 32 58 C30 44 20 34 6 32 C20 30 30 20 32 6 Z"/>
-            <path d="M50 4 C50.8 9 54 12.2 59 13 C54 13.8 50.8 17 50 22 C49.2 17 46 13.8 41 13 C46 12.2 49.2 9 50 4 Z"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "What Element Are You?" quiz!</span>
+          <a class="side-quiz-link element-quiz" href="element-quiz.html" title="What Element Are You?" aria-label="What Element Are You? quiz">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <path d="M32 6 C34 20 44 30 58 32 C44 34 34 44 32 58 C30 44 20 34 6 32 C20 30 30 20 32 6 Z"/>
+              <path d="M50 4 C50.8 9 54 12.2 59 13 C54 13.8 50.8 17 50 22 C49.2 17 46 13.8 41 13 C46 12.2 49.2 9 50 4 Z"/>
+            </svg>
+          </a>
+        </div>
 
-        <a class="side-quiz-link bird-quiz" href="bird-quiz.html" title="What Bird Are You?" aria-label="What Bird Are You? quiz">
-          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
-            <ellipse cx="32" cy="46" rx="9" ry="8"/>
-            <ellipse cx="32" cy="24" rx="5" ry="18"/>
-            <ellipse cx="18" cy="30" rx="5" ry="16" transform="rotate(-30 18 30)"/>
-            <ellipse cx="46" cy="30" rx="5" ry="16" transform="rotate(30 46 30)"/>
-            <ellipse cx="32" cy="56" rx="4" ry="7"/>
-          </svg>
-        </a>
+        <div class="quiz-item">
+          <span class="quiz-label">Take the "What Bird Are You?" quiz!</span>
+          <a class="side-quiz-link bird-quiz" href="bird-quiz.html" title="What Bird Are You?" aria-label="What Bird Are You? quiz">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+              <ellipse cx="32" cy="46" rx="9" ry="8"/>
+              <ellipse cx="32" cy="24" rx="5" ry="18"/>
+              <ellipse cx="18" cy="30" rx="5" ry="16" transform="rotate(-30 18 30)"/>
+              <ellipse cx="46" cy="30" rx="5" ry="16" transform="rotate(30 46 30)"/>
+              <ellipse cx="32" cy="56" rx="4" ry="7"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
 
