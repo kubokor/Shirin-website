@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Dog Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5e6d3, #e8c9a0);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 50px;
+        color: #c9765a;
+        text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #c9765a;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #c9765a;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #7d8f5c;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Dog Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. What's your ideal Saturday afternoon?</h2>
+        <button class="choice" onclick="choose('retriever')">Meeting up with friends for a big group hangout</button>
+        <button class="choice" onclick="choose('bulldog')">Napping in a sunny spot, no rush at all</button>
+        <button class="choice" onclick="choose('goldendoodle')">Making everyone laugh at a backyard BBQ</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. A stranger walks by your yard. What do you do?</h2>
+        <button class="choice" onclick="choose('schnauzer')">Stand tall and watch closely, ready to act</button>
+        <button class="choice" onclick="choose('goldendoodle')">Trot over wagging your whole body with joy</button>
+        <button class="choice" onclick="choose('greatdane')">Stay close to your favorite person's side</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. Pick a weekend activity.</h2>
+        <button class="choice" onclick="choose('schnauzer')">Try a new hiking trail, whatever the weather</button>
+        <button class="choice" onclick="choose('greatdane')">Snuggle up during a movie marathon</button>
+        <button class="choice" onclick="choose('retriever')">Chase a ball until you're worn out</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. How do you handle a loud thunderstorm?</h2>
+        <button class="choice" onclick="choose('bulldog')">Shrug it off and keep snoozing</button>
+        <button class="choice" onclick="choose('schnauzer')">Bark boldly at the sky like you're in charge</button>
+        <button class="choice" onclick="choose('greatdane')">Cuddle up next to someone you trust</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. Choose a party role.</h2>
+        <button class="choice" onclick="choose('goldendoodle')">The one cracking jokes and grinning at everyone</button>
+        <button class="choice" onclick="choose('retriever')">The one organizing games and keeping energy high</button>
+        <button class="choice" onclick="choose('bulldog')">The one calmly chatting in a corner, low-key</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. Pick a motto.</h2>
+        <button class="choice" onclick="choose('schnauzer')">"Adventure first, ask questions later."</button>
+        <button class="choice" onclick="choose('greatdane')">"Home is wherever my people are."</button>
+        <button class="choice" onclick="choose('goldendoodle')">"Life's better with a smile."</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { goldendoodle: 0, greatdane: 0, bulldog: 0, retriever: 0, schnauzer: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var dogInfo = {
+        goldendoodle: { title: "You're a Goldendoodle! 🐩", desc: "Smiley and friendly — you light up every room you walk into." },
+        greatdane: { title: "You're a Great Dane! 🐕", desc: "Affectionate and loyal — once someone's your person, they're your person for life." },
+        bulldog: { title: "You're a Bulldog! 🐶", desc: "Docile and calm — steady, unbothered, and perfectly content." },
+        retriever: { title: "You're a Retriever! 🎾", desc: "Outgoing and energetic — always up for the next adventure." },
+        schnauzer: { title: "You're a Schnauzer! 🐾", desc: "Bold and spirited — small in size, big in personality." }
+      };
+
+      function choose(dog) {
+        scores[dog]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "goldendoodle";
+        for (var dog in scores) {
+          if (scores[dog] > scores[winner]) {
+            winner = dog;
+          }
+        }
+
+        document.getElementById("result-title").innerText = dogInfo[winner].title;
+        document.getElementById("result-desc").innerText = dogInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { goldendoodle: 0, greatdane: 0, bulldog: 0, retriever: 0, schnauzer: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
