@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Bird Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 50px;
+        color: #2e6da4;
+        text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #4a90d9;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #4a90d9;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #f4a261;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Bird Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. How do you act at a party?</h2>
+        <button class="choice" onclick="choose('parrot')">I own the room and keep things fun</button>
+        <button class="choice" onclick="choose('flamingo')">I float from group to group, chatting with everyone</button>
+        <button class="choice" onclick="choose('swan')">I stick with my one person all night</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. Pick a way to solve a disagreement.</h2>
+        <button class="choice" onclick="choose('robin')">Speak up boldly, no backing down</button>
+        <button class="choice" onclick="choose('penguin')">Pull a sneaky prank to lighten the mood</button>
+        <button class="choice" onclick="choose('flamingo')">Get emotional about it, it means a lot to me</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. What's your idea of fun?</h2>
+        <button class="choice" onclick="choose('parrot')">Showing off a new trick or joke</button>
+        <button class="choice" onclick="choose('penguin')">Sneaking up on a friend for a laugh</button>
+        <button class="choice" onclick="choose('swan')">A calm, elegant night out</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. How do you handle conflict?</h2>
+        <button class="choice" onclick="choose('robin')">Stand your ground, feisty and fierce</button>
+        <button class="choice" onclick="choose('swan')">Stay loyal to the people who matter, ride it out together</button>
+        <button class="choice" onclick="choose('flamingo')">Get chatty and vent to a group</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. Pick a personality trait.</h2>
+        <button class="choice" onclick="choose('parrot')">Confident, walks in like they own it</button>
+        <button class="choice" onclick="choose('penguin')">Cheeky, always up to something</button>
+        <button class="choice" onclick="choose('robin')">Bold, doesn't back down easily</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. How do you show you care?</h2>
+        <button class="choice" onclick="choose('swan')">Staying gracefully by someone's side</button>
+        <button class="choice" onclick="choose('flamingo')">Wearing your heart on your sleeve</button>
+        <button class="choice" onclick="choose('parrot')">Cracking jokes to cheer someone up</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { parrot: 0, flamingo: 0, penguin: 0, robin: 0, swan: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var birdInfo = {
+        parrot: { title: "You're a Parrot! 🦜", desc: "You are confident and playful!" },
+        flamingo: { title: "You're a Flamingo! 🦩", desc: "You are highly social and emotional." },
+        penguin: { title: "You're a Penguin! 🐧", desc: "You're cheeky and mischievous." },
+        robin: { title: "You're a Robin! 🐦", desc: "You are bold and feisty!" },
+        swan: { title: "You're a Swan! 🦢", desc: "You have grace and loyalty." }
+      };
+
+      function choose(bird) {
+        scores[bird]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "parrot";
+        for (var bird in scores) {
+          if (scores[bird] > scores[winner]) {
+            winner = bird;
+          }
+        }
+
+        document.getElementById("result-title").innerText = birdInfo[winner].title;
+        document.getElementById("result-desc").innerText = birdInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { parrot: 0, flamingo: 0, penguin: 0, robin: 0, swan: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

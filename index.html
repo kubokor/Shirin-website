@@ -127,6 +127,23 @@
         width: 46px;
         height: 46px;
       }
+
+      .side-quiz-link.bird-quiz {
+        background-color: hotpink;
+        width: 90px;
+        height: 90px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .side-quiz-link.bird-quiz svg {
+        width: 40px;
+        height: 40px;
+      }
     </style>
   </head>
   <body>
@@ -159,7 +176,15 @@
           </svg>
         </a>
 
-        <div class="side-quiz-link-placeholder"></div>
+        <a class="side-quiz-link bird-quiz" href="bird-quiz.html" title="What Bird Are You?" aria-label="What Bird Are You? quiz">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+            <ellipse cx="32" cy="46" rx="9" ry="8"/>
+            <ellipse cx="32" cy="24" rx="5" ry="18"/>
+            <ellipse cx="18" cy="30" rx="5" ry="16" transform="rotate(-30 18 30)"/>
+            <ellipse cx="46" cy="30" rx="5" ry="16" transform="rotate(30 46 30)"/>
+            <ellipse cx="32" cy="56" rx="4" ry="7"/>
+          </svg>
+        </a>
       </div>
     </div>
 
