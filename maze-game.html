@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Maze Game</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(ellipse at center, #1a1a24 0%, #060609 75%);
+        font-family: Arial, sans-serif;
+        color: white;
+        text-align: center;
+        overflow-x: hidden;
+      }
+
+      h1 {
+        color: hotpink;
+        font-size: 34px;
+        text-shadow: 0 0 12px rgba(255, 105, 180, 0.6);
+        margin: 24px 0 6px;
+      }
+
+      a.back-link {
+        display: inline-block;
+        font-size: 15px;
+        padding: 8px 18px;
+        border-radius: 10px;
+        background-color: hotpink;
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        margin-bottom: 10px;
+      }
+
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+
+      /* --- Character select --- */
+      #characterSelect {
+        max-width: 720px;
+        margin: 10px auto 40px;
+        padding: 0 16px;
+      }
+
+      #characterSelect p.subtitle {
+        color: #cfcfe0;
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+
+      .char-options {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .char-card {
+        background: linear-gradient(160deg, #1d1d2b, #0d0d14);
+        border: 2px solid #33334a;
+        border-radius: 18px;
+        padding: 20px 18px;
+        width: 190px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        transition: transform 0.15s, border-color 0.15s;
+      }
+
+      .char-card:hover {
+        transform: translateY(-4px);
+        border-color: hotpink;
+      }
+
+      .char-card svg {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 10px;
+      }
+
+      .char-card h3 {
+        margin: 6px 0 4px;
+        font-size: 20px;
+      }
+
+      .char-card p {
+        font-size: 13px;
+        color: #b8b8cc;
+        margin: 0;
+      }
+
+      .char-card .ability-name {
+        color: hotpink;
+        font-weight: bold;
+      }
+
+      /* --- Game HUD --- */
+      #gameScreen {
+        display: none;
+      }
+
+      #hud {
+        max-width: 640px;
+        margin: 10px auto 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 14px;
+        font-size: 15px;
+      }
+
+      #hud .level-label {
+        color: #cfcfe0;
+      }
+
+      #energyLabel {
+        color: hotpink;
+        font-weight: bold;
+      }
+
+      #message {
+        min-height: 22px;
+        color: hotpink;
+        font-size: 15px;
+        margin-bottom: 6px;
+      }
+
+      #canvasWrap {
+        display: inline-block;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 0 0 3px #2a2a3d, 0 10px 40px rgba(0, 0, 0, 0.6);
+        max-width: calc(100vw - 20px);
+      }
+
+      canvas {
+        display: block;
+        background-color: #0c0c14;
+        max-width: 100%;
+        height: auto;
+      }
+
+      #controls {
+        max-width: 640px;
+        margin: 16px auto 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+      }
+
+      #abilityBtn {
+        font-size: 15px;
+        padding: 14px 22px;
+        border-radius: 14px;
+        background-color: hotpink;
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+
+      #abilityBtn:disabled {
+        background-color: #4a3a42;
+        color: #999;
+        cursor: default;
+      }
+
+      #abilityBtn:hover:not(:disabled) {
+        opacity: 0.88;
+      }
+
+      /* on-screen joystick, only shown on touch/coarse-pointer devices */
+      #joystick {
+        display: none;
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        border: 2px solid #3a3a50;
+        touch-action: none;
+      }
+
+      #joystickKnob {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: hotpink;
+        top: 32px;
+        left: 32px;
+        box-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+      }
+
+      @media (pointer: coarse) {
+        #joystick {
+          display: block;
+        }
+        #keyboardHint {
+          display: none;
+        }
+      }
+
+      #keyboardHint {
+        color: #8a8aa0;
+        font-size: 13px;
+        max-width: 200px;
+        text-align: left;
+      }
+
+      /* --- Victory screen --- */
+      #victoryScreen {
+        display: none;
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 0 16px;
+      }
+
+      #victoryScreen h2 {
+        color: hotpink;
+        font-size: 40px;
+        text-shadow: 0 0 16px rgba(255, 105, 180, 0.7);
+      }
+
+      #victoryScreen p {
+        color: #cfcfe0;
+        font-size: 16px;
+      }
+
+      #playAgainBtn {
+        margin-top: 20px;
+        font-size: 16px;
+        padding: 14px 26px;
+        border-radius: 12px;
+        background-color: hotpink;
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+
+      #playAgainBtn:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>The Maze Game</h1>
+    <a class="back-link" href="index.html">Back to party</a>
+
+    <div id="characterSelect">
+      <p class="subtitle">Choose your character. Your choice lasts the whole run.</p>
+      <div class="char-options">
+        <div class="char-card" data-char="warrior">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="18" r="10" fill="#e07a3f"/>
+            <path d="M18,54 C18,38 22,30 32,30 C42,30 46,38 46,54 Z" fill="#e07a3f"/>
+            <rect x="44" y="16" width="6" height="34" rx="2" fill="#cfd6dd" transform="rotate(28 47 33)"/>
+            <rect x="42" y="12" width="10" height="6" rx="1" fill="#8a8f96" transform="rotate(28 47 15)"/>
+          </svg>
+          <h3>Warrior</h3>
+          <p><span class="ability-name">High Jump</span> — leap over one wall in your path.</p>
+        </div>
+
+        <div class="char-card" data-char="assassin">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="18" r="10" fill="#6a3fa0"/>
+            <path d="M18,54 C18,38 22,30 32,30 C42,30 46,38 46,54 Z" fill="#3a2050"/>
+            <path d="M24,14 C24,8 40,8 40,14 C40,10 32,6 32,6 C32,6 24,10 24,14 Z" fill="#1c1028"/>
+            <rect x="14" y="30" width="5" height="20" rx="2" fill="#cfd6dd" transform="rotate(-20 16 40)"/>
+          </svg>
+          <h3>Assassin</h3>
+          <p><span class="ability-name">Shadow</span> — phase through one wall.</p>
+        </div>
+
+        <div class="char-card" data-char="wizard">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="20" r="9" fill="#e8d3b0"/>
+            <path d="M32,4 L46,30 L18,30 Z" fill="#3fa0a0"/>
+            <path d="M16,54 C16,36 22,28 32,28 C42,28 48,36 48,54 Z" fill="#3fa0a0"/>
+            <rect x="46" y="26" width="4" height="30" rx="2" fill="#8a6a40"/>
+            <circle cx="48" cy="24" r="5" fill="#ffe066"/>
+          </svg>
+          <h3>Wizard</h3>
+          <p><span class="ability-name">Seek</span> — reveal the path to the exit briefly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameScreen">
+      <div id="hud">
+        <span class="level-label">Level <span id="levelNum">1</span> of 10</span>
+        <span id="energyLabel">Energy: 12/12</span>
+      </div>
+      <div id="message"></div>
+
+      <div id="canvasWrap">
+        <canvas id="gameCanvas"></canvas>
+      </div>
+
+      <div id="controls">
+        <div id="joystick">
+          <div id="joystickKnob"></div>
+        </div>
+        <button id="abilityBtn">Use Ability</button>
+        <p id="keyboardHint">Move: Arrow keys / WASD<br/>Ability: Spacebar</p>
+      </div>
+    </div>
+
+    <div id="victoryScreen">
+      <h2>You Escaped! 🎉</h2>
+      <p>You made it through all 10 mazes. Well played.</p>
+      <button id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script>
+      // ---------- constants ----------
+      var CELL_SIZE = 40;
+      var WALL_THICKNESS = 6;
+      var PLAYER_RADIUS = 11;
+      var PLAYER_SPEED = 190; // px/sec
+      var SEEK_DURATION = 3000; // ms
+      var STORAGE_KEY = "mazeGameState_v1";
+      var TOTAL_LEVELS = 10;
+      var START_ENERGY = 12;
+
+      var ABILITY_NAME = { warrior: "High Jump", assassin: "Shadow", wizard: "Seek" };
+      var ABILITY_COLOR = { warrior: "#e07a3f", assassin: "#6a3fa0", wizard: "#3fa0a0" };
+
+      // ---------- maze data (fixed, generated once, guaranteed solvable) ----------
+      const MAZE_DATA = [
+        { cols: 6, rows: 6, H: ["111111", "100110", "000111", "011110", "111110", "000011", "111111"], V: ["1010001", "1111001", "1010001", "1000001", "1101001", "1010001"] },
+        { cols: 6, rows: 7, H: ["111111", "100010", "011000", "011110", "010000", "001100", "110010", "111111"], V: ["1010101", "1101101", "1001011", "1001011", "1110111", "1001011", "1001001"] },
+        { cols: 7, rows: 7, H: ["1111111", "0001110", "0000110", "0011000", "0110001", "0111010", "1110000", "1111111"], V: ["11100001", "11110001", "11010111", "11001101", "11001101", "10001111", "10000101"] },
+        { cols: 7, rows: 8, H: ["1111111", "1100000", "1000110", "0001000", "0011100", "0110100", "0001000", "0101110", "1111111"], V: ["10010101", "10111011", "10110111", "11100111", "11001011", "11010111", "10110011", "10100001"] },
+        { cols: 8, rows: 8, H: ["11111111", "00100100", "01101000", "11010100", "00111000", "01001110", "01001100", "00100000", "11111111"], V: ["110100011", "110010111", "100110111", "101001111", "100100011", "101110001", "110110111", "110001011"] },
+        { cols: 8, rows: 9, H: ["11111111", "00000100", "11111010", "01100010", "00001001", "11000010", "10001101", "01000110", "00111100", "11111111"], V: ["110010011", "100101101", "100001011", "110110101", "101111101", "101110101", "101110011", "110101001", "100000011"] },
+        { cols: 9, rows: 9, H: ["111111111", "000010000", "011110000", "110000010", "001100000", "011011010", "010110100", "101001000", "010011110", "111111111"], V: ["1010010011", "1011001111", "1001011101", "1010111111", "1101011101", "1001001011", "1010010111", "1101101011", "1001000001"] },
+        { cols: 9, rows: 10, H: ["111111111", "100110010", "000000101", "000100010", "001111001", "011110010", "011101100", "001011001", "000111110", "010111000", "111111111"], V: ["1010010001", "1111011001", "1110111101", "1110100101", "1100001101", "1000101101", "1100100101", "1101000101", "1010000101", "1001000001"] },
+        { cols: 10, rows: 10, H: ["1111111111", "0100101000", "1011100000", "0101110100", "1110001110", "0111011110", "0010001100", "0011100010", "0000011100", "0111101110", "1111111111"], V: ["11010000101", "10100010111", "10100010111", "10010010011", "10001100011", "11001100011", "11100111011", "11101001011", "11010100011", "10000100001"] },
+        { cols: 10, rows: 11, H: ["1111111111", "0011101100", "0101111010", "1001110001", "0000010010", "0000101000", "0110010110", "1001001000", "0110010010", "1111000110", "0000011000", "1111111111"], V: ["11000100001", "11000010101", "10100001101", "11110101101", "11111010011", "10111101011", "10101010011", "10101101101", "10001110011", "10010101011", "11001000101"] },
+      ];
+
+      // ---------- state ----------
+      var state = {
+        character: null,
+        level: 1,
+        energy: START_ENERGY
+      };
+
+      var canvas = document.getElementById("gameCanvas");
+      var ctx = canvas.getContext("2d");
+      var maze = null; // current level's parsed wall data + wall rects
+      var player = { x: 0, y: 0, facing: "S" };
+      var keys = {};
+      var joyVec = { x: 0, y: 0 };
+      var seekUntil = 0;
+      var seekPath = [];
+      var abilityFx = null; // { type, until, fromX, fromY, toX, toY }
+      var lastTime = null;
+      var messageTimeout = null;
+      var transitioning = false;
+
+      // ---------- persistence ----------
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function loadState() {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        try {
+          var saved = JSON.parse(raw);
+          if (saved && saved.character && saved.level >= 1 && saved.level <= TOTAL_LEVELS && typeof saved.energy === "number") {
+            state = saved;
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      // ---------- maze parsing ----------
+      function parseMaze(def) {
+        var cols = def.cols, rows = def.rows;
+        var H = def.H.map(function (row) { return row.split("").map(function (c) { return c === "1"; }); });
+        var V = def.V.map(function (row) { return row.split("").map(function (c) { return c === "1"; }); });
+
+        var wallRects = [];
+        for (var r = 0; r <= rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            if (H[r][c]) {
+              wallRects.push({ x: c * CELL_SIZE - WALL_THICKNESS / 2, y: r * CELL_SIZE - WALL_THICKNESS / 2, w: CELL_SIZE + WALL_THICKNESS, h: WALL_THICKNESS });
+            }
+          }
+        }
+        for (var r2 = 0; r2 < rows; r2++) {
+          for (var c2 = 0; c2 <= cols; c2++) {
+            if (V[r2][c2]) {
+              wallRects.push({ x: c2 * CELL_SIZE - WALL_THICKNESS / 2, y: r2 * CELL_SIZE - WALL_THICKNESS / 2, w: WALL_THICKNESS, h: CELL_SIZE + WALL_THICKNESS });
+            }
+          }
+        }
+
+        return { cols: cols, rows: rows, H: H, V: V, wallRects: wallRects };
+      }
+
+      function hasWall(m, r, c, dir) {
+        if (dir === "N") return m.H[r][c];
+        if (dir === "S") return m.H[r + 1][c];
+        if (dir === "W") return m.V[r][c];
+        if (dir === "E") return m.V[r][c + 1];
+      }
+
+      // ---------- level lifecycle ----------
+      function loadLevel(levelNum) {
+        levelNum = Math.max(1, Math.min(TOTAL_LEVELS, levelNum));
+        state.level = levelNum;
+        maze = parseMaze(MAZE_DATA[levelNum - 1]);
+        canvas.width = maze.cols * CELL_SIZE;
+        canvas.height = maze.rows * CELL_SIZE;
+        player.x = CELL_SIZE / 2;
+        player.y = CELL_SIZE / 2;
+        player.facing = "S";
+        seekUntil = 0;
+        seekPath = [];
+        abilityFx = null;
+        document.getElementById("levelNum").textContent = levelNum;
+        updateEnergyLabel();
+        showMessage("");
+      }
+
+      function updateEnergyLabel() {
+        document.getElementById("energyLabel").textContent = "Energy: " + state.energy + "/" + START_ENERGY;
+        document.getElementById("abilityBtn").textContent = "Use " + ABILITY_NAME[state.character] + " (" + state.energy + ")";
+        document.getElementById("abilityBtn").disabled = state.energy <= 0;
+      }
+
+      function showMessage(text, duration) {
+        var el = document.getElementById("message");
+        el.textContent = text;
+        if (messageTimeout) clearTimeout(messageTimeout);
+        if (text && duration) {
+          messageTimeout = setTimeout(function () { el.textContent = ""; }, duration);
+        }
+      }
+
+      function completeLevel() {
+        if (transitioning) return;
+        transitioning = true;
+        maze = null; // stop updates/rendering until the next level loads
+
+        if (state.level >= TOTAL_LEVELS) {
+          localStorage.removeItem(STORAGE_KEY);
+          document.getElementById("gameScreen").style.display = "none";
+          document.getElementById("victoryScreen").style.display = "block";
+          return;
+        }
+        state.level++;
+        saveState();
+        showMessage("Level Complete!", 1400);
+        setTimeout(function () {
+          try {
+            loadLevel(state.level);
+          } catch (e) {
+            console.error("Failed to load next level:", e);
+            showMessage("Something went wrong loading the next level — reloading may help.", 4000);
+          }
+          transitioning = false;
+        }, 700);
+      }
+
+      // ---------- collision ----------
+      function circleRectOverlap(cx, cy, r, rect) {
+        var closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
+        var closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
+        var dx = cx - closestX, dy = cy - closestY;
+        return (dx * dx + dy * dy) < (r * r);
+      }
+
+      function collides(x, y) {
+        for (var i = 0; i < maze.wallRects.length; i++) {
+          if (circleRectOverlap(x, y, PLAYER_RADIUS, maze.wallRects[i])) return true;
+        }
+        return false;
+      }
+
+      // ---------- movement ----------
+      function getInputVector() {
+        var dx = 0, dy = 0;
+        if (keys["arrowleft"] || keys["a"]) dx -= 1;
+        if (keys["arrowright"] || keys["d"]) dx += 1;
+        if (keys["arrowup"] || keys["w"]) dy -= 1;
+        if (keys["arrowdown"] || keys["s"]) dy += 1;
+
+        if (dx === 0 && dy === 0 && (joyVec.x !== 0 || joyVec.y !== 0)) {
+          dx = joyVec.x;
+          dy = joyVec.y;
+          return { x: dx, y: dy, mag: Math.min(1, Math.hypot(dx, dy)) };
+        }
+
+        var len = Math.hypot(dx, dy);
+        if (len > 0) { dx /= len; dy /= len; }
+        return { x: dx, y: dy, mag: len > 0 ? 1 : 0 };
+      }
+
+      function updatePlayer(dt) {
+        var input = getInputVector();
+        if (input.mag > 0) {
+          if (Math.abs(input.x) > Math.abs(input.y)) {
+            player.facing = input.x > 0 ? "E" : "W";
+          } else {
+            player.facing = input.y > 0 ? "S" : "N";
+          }
+
+          var speed = PLAYER_SPEED * input.mag;
+          var newX = player.x + input.x * speed * dt;
+          var newY = player.y + input.y * speed * dt;
+
+          if (!collides(newX, player.y)) player.x = newX;
+          if (!collides(player.x, newY)) player.y = newY;
+        }
+
+        // reached exit (center of last cell)
+        var exitX = (maze.cols - 0.5) * CELL_SIZE;
+        var exitY = (maze.rows - 0.5) * CELL_SIZE;
+        if (Math.hypot(player.x - exitX, player.y - exitY) < CELL_SIZE * 0.4) {
+          completeLevel();
+        }
+      }
+
+      // ---------- abilities ----------
+      function cellOf(x, y) {
+        return { r: Math.floor(y / CELL_SIZE), c: Math.floor(x / CELL_SIZE) };
+      }
+
+      function useAbility() {
+        if (state.energy <= 0) return;
+        var type = state.character;
+
+        if (type === "wizard") {
+          state.energy--;
+          saveState();
+          updateEnergyLabel();
+          seekPath = computePath();
+          seekUntil = performance.now() + SEEK_DURATION;
+          showMessage("You sense the path ahead...", SEEK_DURATION);
+          checkEnergyDepleted();
+          return;
+        }
+
+        // warrior (high jump) / assassin (shadow): cross exactly one wall in facing direction
+        var cell = cellOf(player.x, player.y);
+        var dir = player.facing;
+        var dr = dir === "N" ? -1 : dir === "S" ? 1 : 0;
+        var dc = dir === "W" ? -1 : dir === "E" ? 1 : 0;
+        var targetR = cell.r + dr, targetC = cell.c + dc;
+
+        if (targetR < 0 || targetR >= maze.rows || targetC < 0 || targetC >= maze.cols) {
+          showMessage("Nothing to cross there.", 1400);
+          return;
+        }
+        if (!hasWall(maze, cell.r, cell.c, dir)) {
+          showMessage("There's no wall to cross there.", 1400);
+          return;
+        }
+
+        state.energy--;
+        saveState();
+        updateEnergyLabel();
+        checkEnergyDepleted();
+
+        var fromX = player.x, fromY = player.y;
+        var toX = (targetC + 0.5) * CELL_SIZE, toY = (targetR + 0.5) * CELL_SIZE;
+        abilityFx = { type: type, start: performance.now(), duration: 380, fromX: fromX, fromY: fromY, toX: toX, toY: toY };
+        player.x = toX;
+        player.y = toY;
+        showMessage(type === "warrior" ? "High Jump!" : "Shadow step!", 1000);
+      }
+
+      function checkEnergyDepleted() {
+        if (state.energy === 0) {
+          showMessage("You lost your energy!", 2200);
+        }
+      }
+
+      function computePath() {
+        var start = cellOf(player.x, player.y);
+        var goal = { r: maze.rows - 1, c: maze.cols - 1 };
+        var key = function (r, c) { return r + "," + c; };
+        var visited = {};
+        visited[key(start.r, start.c)] = null;
+        var queue = [start];
+        var dirs = [
+          { d: "N", dr: -1, dc: 0 },
+          { d: "S", dr: 1, dc: 0 },
+          { d: "W", dr: 0, dc: -1 },
+          { d: "E", dr: 0, dc: 1 }
+        ];
+        var found = false;
+        while (queue.length) {
+          var cur = queue.shift();
+          if (cur.r === goal.r && cur.c === goal.c) { found = true; break; }
+          for (var i = 0; i < dirs.length; i++) {
+            var nd = dirs[i];
+            var nr = cur.r + nd.dr, nc = cur.c + nd.dc;
+            if (nr < 0 || nr >= maze.rows || nc < 0 || nc >= maze.cols) continue;
+            if (hasWall(maze, cur.r, cur.c, nd.d)) continue;
+            var k = key(nr, nc);
+            if (visited.hasOwnProperty(k)) continue;
+            visited[k] = cur;
+            queue.push({ r: nr, c: nc });
+          }
+        }
+        if (!found) return [];
+        var path = [];
+        var node = goal;
+        while (node) {
+          path.push(node);
+          var k = key(node.r, node.c);
+          node = visited[k];
+        }
+        return path.reverse();
+      }
+
+      // ---------- rendering ----------
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // subtle vignette background
+        var grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 20, canvas.width / 2, canvas.height / 2, canvas.width * 0.8);
+        grad.addColorStop(0, "#14141f");
+        grad.addColorStop(1, "#07070b");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // seek path glow
+        if (performance.now() < seekUntil && seekPath.length) {
+          ctx.strokeStyle = "rgba(63, 160, 160, 0.85)";
+          ctx.lineWidth = 6;
+          ctx.shadowColor = "#3fa0a0";
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          for (var i = 0; i < seekPath.length; i++) {
+            var px = (seekPath[i].c + 0.5) * CELL_SIZE;
+            var py = (seekPath[i].r + 0.5) * CELL_SIZE;
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // walls
+        ctx.fillStyle = "#3a3a52";
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 4;
+        for (var w = 0; w < maze.wallRects.length; w++) {
+          var rect = maze.wallRects[w];
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        }
+        ctx.shadowBlur = 0;
+
+        // exit ladder
+        drawLadder((maze.cols - 0.5) * CELL_SIZE, (maze.rows - 0.5) * CELL_SIZE);
+
+        // player
+        drawPlayer();
+      }
+
+      function drawLadder(cx, cy) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = "#d8b667";
+        ctx.lineWidth = 3;
+        ctx.shadowColor = "#d8b667";
+        ctx.shadowBlur = 8;
+        var half = 10;
+        ctx.beginPath();
+        ctx.moveTo(-half, -14); ctx.lineTo(-half, 14);
+        ctx.moveTo(half, -14); ctx.lineTo(half, 14);
+        for (var y = -10; y <= 10; y += 7) {
+          ctx.moveTo(-half, y); ctx.lineTo(half, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawPlayer() {
+        var x = player.x, y = player.y;
+        var color = ABILITY_COLOR[state.character] || "hotpink";
+        var scale = 1, alpha = 1, offsetY = 0;
+
+        if (abilityFx) {
+          var t = (performance.now() - abilityFx.start) / abilityFx.duration;
+          if (t >= 1) {
+            abilityFx = null;
+          } else {
+            if (abilityFx.type === "warrior") {
+              offsetY = -Math.sin(t * Math.PI) * 26;
+              scale = 1 + Math.sin(t * Math.PI) * 0.15;
+            } else if (abilityFx.type === "assassin") {
+              alpha = 0.25 + Math.abs(Math.sin(t * Math.PI)) * 0.75;
+            }
+          }
+        }
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(x, y + offsetY);
+        ctx.scale(scale, scale);
+
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255,255,255,0.85)";
+        var fdx = player.facing === "E" ? 1 : player.facing === "W" ? -1 : 0;
+        var fdy = player.facing === "S" ? 1 : player.facing === "N" ? -1 : 0;
+        ctx.beginPath();
+        ctx.arc(fdx * 5, fdy * 5, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // ---------- game loop ----------
+      function gameLoop(timestamp) {
+        if (lastTime === null) lastTime = timestamp;
+        var dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+        lastTime = timestamp;
+
+        try {
+          if (maze) {
+            updatePlayer(dt);
+            render();
+          }
+        } catch (e) {
+          // never let a single bad frame permanently freeze the canvas
+          console.error("Maze game frame error:", e);
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // ---------- input ----------
+      window.addEventListener("keydown", function (e) {
+        keys[e.key.toLowerCase()] = true;
+        if (e.key === " ") { useAbility(); e.preventDefault(); }
+      });
+      window.addEventListener("keyup", function (e) {
+        keys[e.key.toLowerCase()] = false;
+      });
+
+      document.getElementById("abilityBtn").addEventListener("click", useAbility);
+
+      // joystick
+      var joystick = document.getElementById("joystick");
+      var joystickKnob = document.getElementById("joystickKnob");
+      var joyActive = false, joyCenter = { x: 0, y: 0 };
+      var JOY_RADIUS = 40;
+
+      function joyStart(clientX, clientY) {
+        var rect = joystick.getBoundingClientRect();
+        joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        joyActive = true;
+        joyMove(clientX, clientY);
+      }
+      function joyMove(clientX, clientY) {
+        if (!joyActive) return;
+        var dx = clientX - joyCenter.x, dy = clientY - joyCenter.y;
+        var dist = Math.min(JOY_RADIUS, Math.hypot(dx, dy));
+        var angle = Math.atan2(dy, dx);
+        var kx = Math.cos(angle) * dist, ky = Math.sin(angle) * dist;
+        joystickKnob.style.left = (32 + kx) + "px";
+        joystickKnob.style.top = (32 + ky) + "px";
+        joyVec.x = kx / JOY_RADIUS;
+        joyVec.y = ky / JOY_RADIUS;
+      }
+      function joyEnd() {
+        joyActive = false;
+        joyVec.x = 0; joyVec.y = 0;
+        joystickKnob.style.left = "32px";
+        joystickKnob.style.top = "32px";
+      }
+
+      joystick.addEventListener("touchstart", function (e) { joyStart(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchmove", function (e) { joyMove(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchend", function (e) { joyEnd(); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("mousedown", function (e) { joyStart(e.clientX, e.clientY); });
+      window.addEventListener("mousemove", function (e) { if (joyActive) joyMove(e.clientX, e.clientY); });
+      window.addEventListener("mouseup", joyEnd);
+
+      // ---------- character select ----------
+      var cards = document.querySelectorAll(".char-card");
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].addEventListener("click", function () {
+          state.character = this.getAttribute("data-char");
+          state.level = 1;
+          state.energy = START_ENERGY;
+          saveState();
+          startGame();
+        });
+      }
+
+      document.getElementById("playAgainBtn").addEventListener("click", function () {
+        localStorage.removeItem(STORAGE_KEY);
+        state = { character: null, level: 1, energy: START_ENERGY };
+        document.getElementById("victoryScreen").style.display = "none";
+        document.getElementById("characterSelect").style.display = "block";
+      });
+
+      function startGame() {
+        document.getElementById("characterSelect").style.display = "none";
+        document.getElementById("victoryScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
+        loadLevel(state.level);
+      }
+
+      // ---------- boot ----------
+      if (loadState()) {
+        startGame();
+      } else {
+        document.getElementById("characterSelect").style.display = "block";
+      }
+
+      requestAnimationFrame(gameLoop);
+    </script>
+  </body>
+</html>

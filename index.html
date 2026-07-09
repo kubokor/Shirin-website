@@ -70,6 +70,25 @@
         margin: 20px auto 0;
       }
 
+      .maze-link {
+        display: block;
+        width: fit-content;
+        margin: 16px auto 0;
+        font-size: 20px;
+        padding: 14px 26px;
+        background-color: #1a1a2e;
+        color: #ff7edb;
+        border: 2px solid hotpink;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 0 14px rgba(255, 105, 180, 0.6);
+      }
+
+      .maze-link:hover {
+        background-color: #26263f;
+      }
+
       .quiz-columns {
         display: flex;
         justify-content: center;
@@ -313,6 +332,8 @@
         <button onclick="changeText()">Click me!</button>
         <br />
         <a class="quiz-link" href="quiz.html">Take the "What Animal Are You?" quiz!</a>
+        <br />
+        <a class="maze-link" href="maze-game.html">Take the maze game!</a>
       </div>
 
       <div class="quiz-column quiz-column-right">
