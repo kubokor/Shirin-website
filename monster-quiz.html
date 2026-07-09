@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>What Classic Monster Are You?</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1b1030, #2d1b4e, #123524);
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: 44px;
+        color: #b388ff;
+        text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+        margin-bottom: 30px;
+      }
+
+      .quiz-box {
+        background-color: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      .question h2 {
+        color: #444;
+        font-size: 26px;
+      }
+
+      button.choice {
+        display: block;
+        width: 100%;
+        font-size: 20px;
+        padding: 15px;
+        margin: 12px 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: white;
+        background-color: #6a0dad;
+      }
+
+      button.choice:hover {
+        opacity: 0.85;
+      }
+
+      #result h2 {
+        font-size: 32px;
+        color: #6a0dad;
+      }
+
+      #result p {
+        font-size: 20px;
+        color: #444;
+      }
+
+      button.restart,
+      a.back-link {
+        display: inline-block;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #2e8b57;
+        color: white;
+        margin-top: 15px;
+        text-decoration: none;
+      }
+
+      button.restart:hover,
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>What Classic Monster Are You?</h1>
+
+    <div class="quiz-box">
+      <div class="question" id="q1">
+        <h2>1. What's your role at a Halloween party?</h2>
+        <button class="choice" onclick="choose('dracula')">The host, working the room with charm</button>
+        <button class="choice" onclick="choose('werewolf')">The one causing all the chaos on the dance floor</button>
+        <button class="choice" onclick="choose('mummy')">Hanging back, watching from the shadows</button>
+      </div>
+
+      <div class="question" id="q2" style="display: none;">
+        <h2>2. How do you process a surprising piece of news?</h2>
+        <button class="choice" onclick="choose('frankenstein')">It takes me a minute, but I get there — and I'll make a joke about it</button>
+        <button class="choice" onclick="choose('swampthing')">I quietly sit with it, turning it over in my mind</button>
+        <button class="choice" onclick="choose('dracula')">I catch on fast and use it to my advantage</button>
+      </div>
+
+      <div class="question" id="q3" style="display: none;">
+        <h2>3. Pick a way to spend a quiet evening.</h2>
+        <button class="choice" onclick="choose('swampthing')">Sitting by the water, thinking about everything and nothing</button>
+        <button class="choice" onclick="choose('mummy')">Staying out of sight, just observing</button>
+        <button class="choice" onclick="choose('werewolf')">Howling at the moon, full of wild energy</button>
+      </div>
+
+      <div class="question" id="q4" style="display: none;">
+        <h2>4. How would your friends describe you?</h2>
+        <button class="choice" onclick="choose('frankenstein')">Clumsy but hilarious</button>
+        <button class="choice" onclick="choose('dracula')">Sly, always one step ahead</button>
+        <button class="choice" onclick="choose('swampthing')">Curious about everything, always asking questions</button>
+      </div>
+
+      <div class="question" id="q5" style="display: none;">
+        <h2>5. Pick a role in a group project.</h2>
+        <button class="choice" onclick="choose('mummy')">The behind-the-scenes one who makes it all work quietly</button>
+        <button class="choice" onclick="choose('werewolf')">The wild card who brings unpredictable energy</button>
+        <button class="choice" onclick="choose('frankenstein')">The funny one who's a little slow to catch on, but everyone loves</button>
+      </div>
+
+      <div class="question" id="q6" style="display: none;">
+        <h2>6. What's your ideal spotlight moment?</h2>
+        <button class="choice" onclick="choose('werewolf')">Being the center of attention, all eyes on me</button>
+        <button class="choice" onclick="choose('dracula')">Working the crowd smoothly, like the host of the show</button>
+        <button class="choice" onclick="choose('mummy')">Staying quiet backstage, letting others shine</button>
+      </div>
+
+      <div id="result" style="display: none;">
+        <h2 id="result-title"></h2>
+        <p id="result-desc"></p>
+        <button class="restart" onclick="restart()">Take again</button>
+        <a class="back-link" href="index.html">Back to party</a>
+      </div>
+    </div>
+
+    <script>
+      var scores = { frankenstein: 0, dracula: 0, werewolf: 0, mummy: 0, swampthing: 0 };
+      var currentQuestion = 1;
+      var totalQuestions = 6;
+
+      var monsterInfo = {
+        frankenstein: { title: "You're Frankenstein's Monster! 🧟", desc: "Slow to process things, but super funny." },
+        dracula: { title: "You're Dracula! 🧛", desc: "Sly and clever, the host for the show." },
+        werewolf: { title: "You're a Werewolf! 🐺", desc: "Totally wild, the main scene." },
+        mummy: { title: "You're a Mummy! 🧻", desc: "Hidden and quiet, the backstage man." },
+        swampthing: { title: "You're Swamp Thing! 🐊", desc: "Stoic, contemplative, and curious." }
+      };
+
+      function choose(monster) {
+        scores[monster]++;
+
+        document.getElementById("q" + currentQuestion).style.display = "none";
+        currentQuestion++;
+
+        if (currentQuestion <= totalQuestions) {
+          document.getElementById("q" + currentQuestion).style.display = "block";
+        } else {
+          showResult();
+        }
+      }
+
+      function showResult() {
+        var winner = "frankenstein";
+        for (var monster in scores) {
+          if (scores[monster] > scores[winner]) {
+            winner = monster;
+          }
+        }
+
+        document.getElementById("result-title").innerText = monsterInfo[winner].title;
+        document.getElementById("result-desc").innerText = monsterInfo[winner].desc;
+        document.getElementById("result").style.display = "block";
+      }
+
+      function restart() {
+        scores = { frankenstein: 0, dracula: 0, werewolf: 0, mummy: 0, swampthing: 0 };
+        currentQuestion = 1;
+        document.getElementById("result").style.display = "none";
+        document.getElementById("q1").style.display = "block";
+        for (var i = 2; i <= totalQuestions; i++) {
+          document.getElementById("q" + i).style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

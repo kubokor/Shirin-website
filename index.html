@@ -177,6 +177,23 @@
         width: 44px;
         height: 44px;
       }
+
+      .side-quiz-link.monster-quiz {
+        background-color: hotpink;
+        width: 90px;
+        height: 90px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .side-quiz-link.monster-quiz svg {
+        width: 44px;
+        height: 44px;
+      }
     </style>
   </head>
   <body>
@@ -191,7 +208,14 @@
           </svg>
         </a>
 
-        <div class="side-quiz-link-placeholder"></div>
+        <a class="side-quiz-link monster-quiz" href="monster-quiz.html" title="What Classic Monster Are You?" aria-label="What Classic Monster Are You? quiz">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="white">
+            <path d="M4,32 Q32,2 60,32 Q32,62 4,32 Z"/>
+            <ellipse cx="32" cy="32" rx="5" ry="15" fill="hotpink"/>
+            <path d="M10,18 Q32,4 54,18" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </a>
+
         <div class="side-quiz-link-placeholder"></div>
       </div>
 
