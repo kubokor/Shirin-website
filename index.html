@@ -46,6 +46,59 @@
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
       }
 
+      .site-dropdown {
+        position: relative;
+        display: inline-block;
+        margin: 10px 0 20px;
+      }
+
+      button.dropdown-trigger {
+        font-size: 18px;
+        padding: 12px 22px;
+        background-color: black;
+        color: hotpink;
+        border: 2px solid hotpink;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 0;
+        box-shadow: none;
+      }
+
+      button.dropdown-trigger:hover {
+        background-color: #1a1a1a;
+      }
+
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: black;
+        border: 2px solid hotpink;
+        border-radius: 10px;
+        min-width: 220px;
+        overflow: hidden;
+        z-index: 5;
+      }
+
+      .dropdown-menu.open {
+        display: block;
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 12px 18px;
+        color: hotpink;
+        font-size: 16px;
+        text-decoration: none;
+        background-color: black;
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #1a1a1a;
+      }
+
       button, a.quiz-link {
         font-size: 24px;
         padding: 15px 30px;
@@ -329,6 +382,14 @@
         <img src="dance.gif" alt="Dancing gif" width="300" />
         <p class="intro-label">(Press the buttons to take the quizzes!)</p>
         <h1 id="message">Let's Party!</h1>
+
+        <div class="site-dropdown">
+          <button class="dropdown-trigger" onclick="toggleDropdown()">Other websites ▾</button>
+          <div class="dropdown-menu" id="dropdownMenu">
+            <a href="gaming.html">Go to gaming website</a>
+          </div>
+        </div>
+
         <button onclick="changeText()">Click me!</button>
         <br />
         <a class="quiz-link" href="quiz.html">Take the "What Animal Are You?" quiz!</a>
@@ -389,6 +450,17 @@
         var next = messages[(messages.indexOf(current) + 1) % messages.length];
         document.getElementById("message").innerText = next;
       }
+
+      function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("open");
+      }
+
+      document.addEventListener("click", function (e) {
+        var dropdown = document.querySelector(".site-dropdown");
+        if (dropdown && !dropdown.contains(e.target)) {
+          document.getElementById("dropdownMenu").classList.remove("open");
+        }
+      });
     </script>
   </body>
 </html>
