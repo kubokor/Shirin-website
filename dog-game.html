@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pup's Journey</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        color: white;
+        background: #87ceeb;
+      }
+
+      a.back-link {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 20;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        background-color: limegreen;
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      }
+
+      a.back-link:hover { opacity: 0.85; }
+
+      /* ---------- character select ---------- */
+      #characterSelect {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: radial-gradient(circle at center, #cdeccd 0%, #7ec87e 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+      }
+
+      #characterSelect h1 {
+        color: #1b5e20;
+        font-size: 42px;
+        margin-bottom: 6px;
+        text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+      }
+
+      #characterSelect p.subtitle {
+        color: #245c24;
+        margin-bottom: 26px;
+        font-size: 15px;
+      }
+
+      .breed-options {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .breed-card {
+        background: white;
+        border: 3px solid #2e7d32;
+        border-radius: 18px;
+        padding: 22px;
+        width: 200px;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+        transition: transform 0.15s;
+      }
+
+      .breed-card:hover { transform: translateY(-4px); }
+
+      .breed-swatch {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 12px;
+        border: 3px solid rgba(0,0,0,0.15);
+      }
+
+      .breed-card h3 { color: #1b5e20; margin: 6px 0; }
+      .breed-card p { color: #444; font-size: 13px; margin: 0; }
+
+      /* ---------- HUD ---------- */
+      #hud {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 10;
+        display: none;
+        padding: 14px 16px;
+        pointer-events: none;
+      }
+
+      #hud .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      #hungerWrap {
+        background: rgba(0,0,0,0.45);
+        border-radius: 10px;
+        padding: 8px 12px;
+        width: 180px;
+      }
+
+      #hungerLabel { font-size: 12px; margin-bottom: 4px; display: block; }
+
+      #hungerBarBg {
+        width: 100%;
+        height: 10px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      #hungerBarFill {
+        height: 100%;
+        background: #ffb703;
+        width: 100%;
+        transition: width 0.2s;
+      }
+
+      #levelBadge {
+        background: rgba(0,0,0,0.45);
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-size: 14px;
+        text-align: right;
+      }
+
+      #skinBtn {
+        pointer-events: auto;
+        margin-top: 6px;
+        font-size: 13px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        background: limegreen;
+        color: white;
+        cursor: pointer;
+      }
+
+      #questBanner {
+        background: rgba(0,0,0,0.55);
+        border-radius: 12px;
+        padding: 10px 16px;
+        margin-top: 10px;
+        max-width: 420px;
+        font-size: 14px;
+        pointer-events: none;
+      }
+
+      #questBanner b { color: #ffd166; }
+
+      #interactPrompt {
+        position: fixed;
+        bottom: 130px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        display: none;
+        z-index: 10;
+      }
+
+      #toast {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.75);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 15px;
+        color: #ffd166;
+        z-index: 12;
+        display: none;
+        text-align: center;
+        max-width: 80vw;
+      }
+
+      /* ---------- skin panel ---------- */
+      #skinPanel {
+        position: fixed;
+        inset: 0;
+        z-index: 25;
+        background: rgba(0,0,0,0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #skinPanel .box {
+        background: #1b3a1b;
+        border: 3px solid limegreen;
+        border-radius: 16px;
+        padding: 20px;
+        max-width: 340px;
+        text-align: center;
+      }
+
+      #skinList { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 14px 0; }
+
+      .skin-chip {
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 13px;
+        cursor: pointer;
+        background: #2a4a2a;
+        color: #ccc;
+      }
+
+      .skin-chip.unlocked { color: white; border-color: limegreen; }
+      .skin-chip.active { background: limegreen; color: #06240a; font-weight: bold; }
+
+      #skinPanel button.close-btn {
+        margin-top: 8px;
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: none;
+        background: limegreen;
+        color: white;
+        cursor: pointer;
+      }
+
+      /* ---------- boss HUD ---------- */
+      #bossHud {
+        position: fixed;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 11;
+        display: none;
+        text-align: center;
+        background: rgba(40,0,0,0.55);
+        border: 2px solid #d62828;
+        border-radius: 12px;
+        padding: 10px 20px;
+      }
+
+      #bossHud .crow-count { font-size: 22px; color: #ffb3b3; font-weight: bold; }
+
+      /* ---------- controls ---------- */
+      #controls {
+        position: fixed;
+        bottom: 20px;
+        left: 0; right: 0;
+        z-index: 10;
+        display: none;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 20px;
+      }
+
+      #joystick {
+        display: none;
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        border: 2px solid rgba(255,255,255,0.5);
+        touch-action: none;
+      }
+
+      #joystickKnob {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: limegreen;
+        top: 32px;
+        left: 32px;
+        box-shadow: 0 0 10px rgba(50,205,50,0.8);
+      }
+
+      @media (pointer: coarse) {
+        #joystick { display: block; }
+        #keyboardHint { display: none; }
+      }
+
+      #keyboardHint {
+        color: rgba(255,255,255,0.85);
+        font-size: 13px;
+        background: rgba(0,0,0,0.4);
+        padding: 8px 12px;
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      #actionBtn {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #ffb703;
+        color: #402c00;
+        font-weight: bold;
+        font-size: 14px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        cursor: pointer;
+      }
+
+      #actionBtn:active { opacity: 0.8; }
+
+      #gameContainer { position: fixed; inset: 0; z-index: 1; }
+
+      /* ---------- victory ---------- */
+      #victoryScreen {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        background: radial-gradient(circle at center, #cdeccd 0%, #4a8f4a 100%);
+        padding: 20px;
+      }
+
+      #victoryScreen h1 {
+        color: #1b5e20;
+        font-size: 46px;
+        text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+      }
+
+      #victoryScreen p { color: #1b3a1b; max-width: 500px; font-size: 16px; }
+
+      #victoryScreen button, #victoryScreen a.back-link-inline {
+        margin-top: 20px;
+        font-size: 16px;
+        padding: 12px 26px;
+        border-radius: 10px;
+        border: none;
+        background: limegreen;
+        color: white;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back-link" href="gaming.html">Back to games</a>
+
+    <div id="characterSelect">
+      <h1>Pup's Journey</h1>
+      <p class="subtitle">Choose your puppy. You'll grow up along the way.</p>
+      <div class="breed-options">
+        <div class="breed-card" data-breed="golden">
+          <div class="breed-swatch" style="background:#d9a441;"></div>
+          <h3>Golden Retriever</h3>
+          <p>Friendly and food-driven.</p>
+        </div>
+        <div class="breed-card" data-breed="shepherd">
+          <div class="breed-swatch" style="background:#3b2b1f;"></div>
+          <h3>German Shepherd</h3>
+          <p>Bold and quick on their paws.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="hud">
+      <div class="row">
+        <div id="hungerWrap">
+          <span id="hungerLabel">Hunger</span>
+          <div id="hungerBarBg"><div id="hungerBarFill"></div></div>
+        </div>
+        <div id="levelBadge">
+          Level <span id="levelNum">1</span> / 10<br/>
+          <span id="growthLabel">Puppy</span><br/>
+          <span id="companionCount">Companions: 0</span>
+          <br/><button id="skinBtn">Skins</button>
+        </div>
+      </div>
+      <div id="questBanner"><b>Quest:</b> <span id="questText"></span></div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="interactPrompt">Press the paw button to interact</div>
+
+    <div id="bossHud">
+      <div>The Crow Boss has come for you!</div>
+      <div class="crow-count"><span id="crowsLeft">0</span> crows remaining</div>
+    </div>
+
+    <div id="gameContainer"></div>
+
+    <div id="controls">
+      <div id="joystick"><div id="joystickKnob"></div></div>
+      <p id="keyboardHint">Move: Arrow keys<br/>Interact / Bark: Spacebar</p>
+      <button id="actionBtn">🐾</button>
+    </div>
+
+    <div id="skinPanel">
+      <div class="box">
+        <h3>Your Skins</h3>
+        <p style="color:#ccc;font-size:13px;">Find hidden skins around town to unlock them.</p>
+        <div id="skinList"></div>
+        <button class="close-btn" id="closeSkinPanel">Close</button>
+      </div>
+    </div>
+
+    <div id="victoryScreen">
+      <h1>You Defended the Neighborhood! 🐕🎉</h1>
+      <p>You and your pack grew up and took down the Crow Boss together. Good dog.</p>
+      <button id="playAgainBtn">Play Again</button>
+      <a class="back-link-inline" href="gaming.html">Back to games</a>
+    </div>
+
+    <script>
+      // ================= constants =================
+      var GRID_COLS = 5, GRID_ROWS = 5;
+      var BLOCK_SIZE = 20;
+      var STREET_WIDTH = 7;
+      var CELL = BLOCK_SIZE + STREET_WIDTH;
+      var WORLD_SIZE = GRID_COLS * CELL + STREET_WIDTH;
+      var HALF_WORLD = WORLD_SIZE / 2;
+      var PARK_BLOCK = { i: 2, j: 2 };
+
+      var TOTAL_LEVELS = 10;
+      var TURN_SPEED = 2.4;
+      var INTERACT_RADIUS = 3.2;
+      var STORAGE_KEY = "dogGameState_v1";
+
+      var HUNGER_MAX = 100;
+      var HUNGER_DECAY_PER_SEC = 100 / 90; // empties in ~90s of real time
+      var HUNGER_FOOD_RESTORE = 34;
+      var HUNGER_WEAK_THRESHOLD = 15;
+
+      var GROWTH_STAGES = [
+        { minLevel: 1, maxLevel: 3, name: "Puppy", eyeHeight: 0.9, speed: 5.5, scale: 0.6 },
+        { minLevel: 4, maxLevel: 7, name: "Adolescent", eyeHeight: 1.15, speed: 6.2, scale: 0.82 },
+        { minLevel: 8, maxLevel: 10, name: "Adult", eyeHeight: 1.4, speed: 7.0, scale: 1.0 }
+      ];
+
+      var BREEDS = {
+        golden: { name: "Golden Retriever", color: 0xd9a441, secondary: 0xf0d9a0 },
+        shepherd: { name: "German Shepherd", color: 0x3b2b1f, secondary: 0xc9a876 }
+      };
+
+      var SKIN_DEFS = [
+        { id: "pug", name: "Pug", color: 0xd8b98c, secondary: 0x5a4636, legScale: 0.6, bodyScale: 0.9, block: { i: 1, j: 2 }, dx: 6, dz: 6 },
+        { id: "corgi", name: "Corgi", color: 0xdba054, secondary: 0xffffff, legScale: 0.45, bodyScale: 1.15, block: { i: 2, j: 1 }, dx: 6, dz: 6 },
+        { id: "dalmatian", name: "Dalmatian", color: 0xffffff, secondary: 0x222222, legScale: 1.0, bodyScale: 1.0, block: { i: 3, j: 2 }, dx: 6, dz: 6 },
+        { id: "husky", name: "Husky", color: 0x9aa5ab, secondary: 0xffffff, legScale: 1.0, bodyScale: 1.0, block: { i: 2, j: 1 }, dx: -6, dz: -6 }
+      ];
+
+      var COMPANION_DEFS = [
+        { id: "beagle", name: "Beagle", color: 0xc98a4b, secondary: 0xffffff, block: { i: 0, j: 1 } },
+        { id: "poodle", name: "Poodle", color: 0xf5f0e6, secondary: 0xe8dfc8, block: { i: 4, j: 1 } },
+        { id: "boxer", name: "Boxer", color: 0xb5651d, secondary: 0x2b1a10, block: { i: 1, j: 4 } }
+      ];
+
+      // quest list: each has an "engine" describing how completion is detected
+      var QUEST_DEFS = [
+        { level: 1, title: "Steal the steak from the backyard barbecue.", engine: "approach", block: { i: 1, j: 0 }, itemLabel: "Steak" },
+        { level: 2, title: "Dig up the bone buried in the flower bed.", engine: "approach", block: { i: 3, j: 0 }, itemLabel: "Bone" },
+        { level: 3, title: "Sneak past the sleeping cat without waking it.", engine: "stealth", guardBlock: { i: 0, j: 2 }, endBlock: { i: 0, j: 3 }, guardLabel: "Sleeping Cat", endLabel: "Safe Zone" },
+        { level: 4, title: "Chase the squirrel up the old oak tree.", engine: "approach", block: { i: 4, j: 0 }, itemLabel: "Squirrel" },
+        { level: 5, title: "Find all 3 lost tennis balls around the block.", engine: "collect", count: 3, blocks: [{ i: 0, j: 0 }, { i: 2, j: 0 }, { i: 4, j: 4 }], itemLabel: "Tennis Ball" },
+        { level: 6, title: "Raid the picnic table at the park.", engine: "approach", block: PARK_BLOCK, itemLabel: "Picnic Table" },
+        { level: 7, title: "Herd the 3 loose chickens back into their pen.", engine: "herd", count: 3, blocks: [{ i: 1, j: 3 }, { i: 2, j: 3 }, { i: 3, j: 3 }], penBlock: { i: 2, j: 4 }, itemLabel: "Chicken", penLabel: "Pen" },
+        { level: 8, title: "Fetch the newspaper without the mail carrier noticing.", engine: "stealth", guardBlock: { i: 4, j: 2 }, endBlock: { i: 4, j: 3 }, guardLabel: "Mail Carrier", endLabel: "Newspaper" },
+        { level: 9, title: "Splash through all 4 puddles on Elm Street.", engine: "collect", count: 4, blocks: [{ i: 0, j: 4 }, { i: 1, j: 1 }, { i: 3, j: 1 }, { i: 3, j: 4 }], itemLabel: "Puddle" },
+        { level: 10, title: "Rally your companions and challenge the Crow Boss at the park!", engine: "boss", block: PARK_BLOCK, itemLabel: "Crow Nest" }
+      ];
+
+      var CROW_COUNT = 6;
+      var BARK_COOLDOWN = 0.9;
+      var BARK_RADIUS = 4.5;
+      var CROW_HITS_TO_FLEE = 2;
+      var BOSS_HITS = 5;
+
+      // ================= state =================
+      var state = {
+        breed: null,
+        level: 1,
+        hunger: HUNGER_MAX,
+        unlockedSkins: [],
+        activeSkin: null,
+        recruitedCompanions: [],
+        collectedFoodSpots: [] // not persisted precisely, food respawns freely
+      };
+
+      var gameStarted = false;
+      var bossActive = false;
+      var bossDefeated = false;
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+      function loadState() {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        try {
+          var saved = JSON.parse(raw);
+          if (saved && saved.breed && BREEDS[saved.breed] && saved.level >= 1 && saved.level <= TOTAL_LEVELS) {
+            state = saved;
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      // ================= helpers =================
+      function blockCenter(block) {
+        var startX = -HALF_WORLD + STREET_WIDTH + BLOCK_SIZE / 2;
+        var startZ = -HALF_WORLD + STREET_WIDTH + BLOCK_SIZE / 2;
+        return { x: startX + block.i * CELL, z: startZ + block.j * CELL };
+      }
+      function isParkBlock(i, j) { return i === PARK_BLOCK.i && j === PARK_BLOCK.j; }
+      // a building sits at every non-park block's exact center (collision radius ~5.1
+      // with the player buffer), which is bigger than INTERACT_RADIUS (3.2) -- so anything
+      // placed at a raw blockCenter() on a regular block is physically unreachable.
+      // yardSpot() offsets into the open yard around the building instead.
+      function yardSpot(block, dx, dz) {
+        var c = blockCenter(block);
+        if (isParkBlock(block.i, block.j)) return c;
+        return { x: c.x + (dx !== undefined ? dx : 6), z: c.z + (dz !== undefined ? dz : 6) };
+      }
+      function currentGrowthStage() {
+        for (var g = 0; g < GROWTH_STAGES.length; g++) {
+          var stage = GROWTH_STAGES[g];
+          if (state.level >= stage.minLevel && state.level <= stage.maxLevel) return stage;
+        }
+        return GROWTH_STAGES[GROWTH_STAGES.length - 1];
+      }
+      function currentQuest() {
+        return QUEST_DEFS[Math.min(state.level, TOTAL_LEVELS) - 1];
+      }
+
+      // ================= three.js setup =================
+      var scene, camera, renderer, clock;
+      var buildingColliders = [];
+      var player = { x: 0, z: 0, yaw: 0 };
+      var keys = {};
+      var joyVec = { x: 0, y: 0 };
+
+      function initThree() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x8ecbe8);
+        scene.fog = new THREE.Fog(0x8ecbe8, 40, 120);
+
+        camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 500);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById("gameContainer").appendChild(renderer.domElement);
+
+        var ambient = new THREE.AmbientLight(0xffffff, 0.65);
+        scene.add(ambient);
+        var sun = new THREE.DirectionalLight(0xffffff, 0.75);
+        sun.position.set(60, 100, 40);
+        scene.add(sun);
+
+        var groundGeo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE);
+        var groundMat = new THREE.MeshLambertMaterial({ color: 0x5a9c4a });
+        var ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        buildStreets();
+        buildBlocks();
+
+        window.addEventListener("resize", onResize);
+        clock = new THREE.Clock();
+      }
+
+      function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function buildStreets() {
+        var streetMat = new THREE.MeshLambertMaterial({ color: 0x3a3a3a });
+        for (var i = 0; i <= GRID_COLS; i++) {
+          var x = -HALF_WORLD + STREET_WIDTH / 2 + i * CELL;
+          var geo = new THREE.PlaneGeometry(STREET_WIDTH, WORLD_SIZE);
+          var strip = new THREE.Mesh(geo, streetMat);
+          strip.rotation.x = -Math.PI / 2;
+          strip.position.set(x, 0.02, 0);
+          scene.add(strip);
+        }
+        for (var j = 0; j <= GRID_ROWS; j++) {
+          var z = -HALF_WORLD + STREET_WIDTH / 2 + j * CELL;
+          var geo2 = new THREE.PlaneGeometry(WORLD_SIZE, STREET_WIDTH);
+          var strip2 = new THREE.Mesh(geo2, streetMat);
+          strip2.rotation.x = -Math.PI / 2;
+          strip2.position.set(0, 0.02, z);
+          scene.add(strip2);
+        }
+      }
+
+      var BUILDING_COLORS = [0x8a8f99, 0x5b7a99, 0xa08060, 0x6b6b73, 0x4a5d73, 0x9c9c9c, 0x7a6a5a];
+
+      function buildBlocks() {
+        var colorIdx = 0;
+        for (var i = 0; i < GRID_COLS; i++) {
+          for (var j = 0; j < GRID_ROWS; j++) {
+            var center = blockCenter({ i: i, j: j });
+            if (isParkBlock(i, j)) {
+              buildPark(center);
+              continue;
+            }
+            var color = BUILDING_COLORS[colorIdx % BUILDING_COLORS.length];
+            colorIdx++;
+            var height = 8 + Math.random() * 18;
+            buildBuilding(center, color, height);
+          }
+        }
+      }
+
+      function buildBuilding(center, color, height) {
+        var group = new THREE.Group();
+        var bodyGeo = new THREE.BoxGeometry(6.5, height, 6.5);
+        var bodyMat = new THREE.MeshLambertMaterial({ color: color });
+        var body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = height / 2;
+        group.add(body);
+
+        var capGeo = new THREE.BoxGeometry(7, 0.6, 7);
+        var capMat = new THREE.MeshLambertMaterial({ color: 0x333338 });
+        var cap = new THREE.Mesh(capGeo, capMat);
+        cap.position.y = height + 0.3;
+        group.add(cap);
+
+        group.position.set(center.x, 0, center.z);
+        scene.add(group);
+
+        buildingColliders.push({ x: center.x, z: center.z, radius: 4.6 });
+      }
+
+      function buildPark(center) {
+        // grassy open area with a tree + picnic table (also quest 6 target)
+        var trunkGeo = new THREE.CylinderGeometry(0.5, 0.6, 4, 8);
+        var trunkMat = new THREE.MeshLambertMaterial({ color: 0x6b4a2a });
+        var trunk = new THREE.Mesh(trunkGeo, trunkMat);
+        trunk.position.set(center.x - 5, 2, center.z - 5);
+        scene.add(trunk);
+
+        var leavesGeo = new THREE.SphereGeometry(3.2, 10, 10);
+        var leavesMat = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
+        var leaves = new THREE.Mesh(leavesGeo, leavesMat);
+        leaves.position.set(center.x - 5, 5, center.z - 5);
+        scene.add(leaves);
+        window.__parkTreeTop = { x: center.x - 5, y: 5.5, z: center.z - 5 };
+
+        var tableGeo = new THREE.BoxGeometry(2.5, 0.8, 1.4);
+        var tableMat = new THREE.MeshLambertMaterial({ color: 0x8a5a2a });
+        var table = new THREE.Mesh(tableGeo, tableMat);
+        table.position.set(center.x + 4, 0.4, center.z + 4);
+        scene.add(table);
+        window.__picnicPos = { x: center.x + 4, z: center.z + 4 };
+      }
+
+      // ================= dog model builder =================
+      function buildDog(def, scale) {
+        scale = scale || 1;
+        var group = new THREE.Group();
+        var mat = new THREE.MeshLambertMaterial({ color: def.color });
+        var mat2 = new THREE.MeshLambertMaterial({ color: def.secondary || def.color });
+        var legScale = def.legScale || 1;
+        var bodyScale = def.bodyScale || 1;
+
+        var bodyGeo = new THREE.BoxGeometry(1.6 * bodyScale, 0.7, 0.8);
+        var body = new THREE.Mesh(bodyGeo, mat);
+        body.position.y = 0.6 * legScale + 0.35;
+        group.add(body);
+
+        var headGeo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+        var head = new THREE.Mesh(headGeo, mat);
+        head.position.set(0.95 * bodyScale, 0.6 * legScale + 0.55, 0);
+        group.add(head);
+
+        var snoutGeo = new THREE.BoxGeometry(0.35, 0.25, 0.3);
+        var snout = new THREE.Mesh(snoutGeo, mat2);
+        snout.position.set(1.25 * bodyScale, 0.6 * legScale + 0.45, 0);
+        group.add(snout);
+
+        var legGeo = new THREE.BoxGeometry(0.22, 0.6 * legScale, 0.22);
+        var legOffsets = [
+          [0.6 * bodyScale, 0.35], [0.6 * bodyScale, -0.35],
+          [-0.6 * bodyScale, 0.35], [-0.6 * bodyScale, -0.35]
+        ];
+        for (var l = 0; l < legOffsets.length; l++) {
+          var leg = new THREE.Mesh(legGeo, mat);
+          leg.position.set(legOffsets[l][0], 0.3 * legScale, legOffsets[l][1]);
+          group.add(leg);
+        }
+
+        var tailGeo = new THREE.BoxGeometry(0.5, 0.18, 0.18);
+        var tail = new THREE.Mesh(tailGeo, mat);
+        tail.position.set(-0.95 * bodyScale, 0.6 * legScale + 0.5, 0);
+        tail.rotation.z = 0.5;
+        group.add(tail);
+
+        group.scale.set(scale, scale, scale);
+        return group;
+      }
+
+      // ================= player's own visible model =================
+      var playerModel = null;
+
+      function getCurrentAppearanceDef() {
+        if (state.activeSkin) {
+          for (var s = 0; s < SKIN_DEFS.length; s++) {
+            if (SKIN_DEFS[s].id === state.activeSkin) return SKIN_DEFS[s];
+          }
+        }
+        return BREEDS[state.breed];
+      }
+
+      function rebuildPlayerModel() {
+        if (playerModel) scene.remove(playerModel);
+        playerModel = buildDog(getCurrentAppearanceDef(), currentGrowthStage().scale);
+        scene.add(playerModel);
+      }
+
+      // ================= interactables =================
+      var interactables = []; // { type, mesh, x, z, def, done }
+      var companionMeshes = {}; // id -> { group, followTarget }
+      var followOffsets = [
+        { dx: -1.5, dz: -1.5 }, { dx: 1.5, dz: -1.5 }, { dx: 0, dz: -2.4 }
+      ];
+
+      function addMarker(x, z, color, y) {
+        var geo = new THREE.TorusGeometry(0.5, 0.12, 8, 16);
+        var mat = new THREE.MeshBasicMaterial({ color: color });
+        var mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = Math.PI / 2;
+        mesh.position.set(x, y || 0.6, z);
+        scene.add(mesh);
+        return mesh;
+      }
+
+      // floating text label that always faces the camera, showing what an object is
+      function makeTextSprite(text) {
+        var canvas = document.createElement("canvas");
+        canvas.width = 320;
+        canvas.height = 72;
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 30px Arial";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        var texture = new THREE.CanvasTexture(canvas);
+        var material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+        var sprite = new THREE.Sprite(material);
+        sprite.scale.set(3, 0.68, 1);
+        return sprite;
+      }
+
+      function addLabel(x, z, y, text) {
+        var sprite = makeTextSprite(text);
+        sprite.position.set(x, y, z);
+        scene.add(sprite);
+        return sprite;
+      }
+
+      function spawnFood() {
+        var pt = randomStreetPoint();
+        var isBone = Math.random() < 0.5;
+        var mesh = addMarker(pt.x, pt.z, isBone ? 0xf5f0e0 : 0xff8c42, 0.4);
+        var labelMesh = addLabel(pt.x, pt.z, 1.1, isBone ? "Bone" : "Pizza");
+        interactables.push({ type: "food", mesh: mesh, labelMesh: labelMesh, x: pt.x, z: pt.z });
+      }
+
+      function randomStreetPoint() {
+        var i = Math.floor(Math.random() * (GRID_COLS + 1));
+        var alongJ = Math.random() * GRID_ROWS;
+        var x = -HALF_WORLD + STREET_WIDTH / 2 + i * CELL;
+        var z = -HALF_WORLD + STREET_WIDTH / 2 + alongJ * CELL;
+        return { x: x, z: z };
+      }
+
+      function setupSkinPickups() {
+        SKIN_DEFS.forEach(function (skin) {
+          if (state.unlockedSkins.indexOf(skin.id) !== -1) return; // already found
+          var pt = yardSpot(skin.block, skin.dx, skin.dz);
+          var mesh = addMarker(pt.x, pt.z, skin.color, 0.6);
+          var labelMesh = addLabel(pt.x, pt.z, 1.3, skin.name);
+          interactables.push({ type: "skin", mesh: mesh, labelMesh: labelMesh, x: pt.x, z: pt.z, def: skin });
+        });
+      }
+
+      function setupCompanions() {
+        COMPANION_DEFS.forEach(function (comp) {
+          if (state.recruitedCompanions.indexOf(comp.id) !== -1) {
+            spawnCompanionFollower(comp);
+            return;
+          }
+          var center = yardSpot(comp.block);
+          var group = buildDog(comp, 0.8);
+          group.position.set(center.x, 0, center.z);
+          scene.add(group);
+          var labelMesh = addLabel(center.x, center.z, 1.6, comp.name);
+          interactables.push({ type: "companion", mesh: group, labelMesh: labelMesh, x: center.x, z: center.z, def: comp });
+        });
+      }
+
+      function spawnCompanionFollower(comp) {
+        var group = buildDog(comp, 0.8);
+        scene.add(group);
+        companionMeshes[comp.id] = { group: group, x: player.x, z: player.z };
+      }
+
+      function setupQuestObjects() {
+        var quest = currentQuest();
+        clearQuestObjects();
+        if (!quest) return;
+
+        if (quest.engine === "approach") {
+          var center = yardSpot(quest.block);
+          var mesh = addMarker(center.x, center.z, 0xffd166, 0.5);
+          var label = addLabel(center.x, center.z, 1.3, quest.itemLabel);
+          questObjects.push({ type: "approachTarget", mesh: mesh, labelMesh: label, x: center.x, z: center.z });
+        } else if (quest.engine === "stealth") {
+          var guardCenter = yardSpot(quest.guardBlock);
+          var endCenter = yardSpot(quest.endBlock);
+          var guardGeo = new THREE.SphereGeometry(0.6, 10, 10);
+          var guardMat = new THREE.MeshLambertMaterial({ color: 0x555555 });
+          var guardMesh = new THREE.Mesh(guardGeo, guardMat);
+          guardMesh.position.set(guardCenter.x, 0.6, guardCenter.z);
+          scene.add(guardMesh);
+          var guardLabel = addLabel(guardCenter.x, guardCenter.z, 1.3, quest.guardLabel);
+          var endMesh = addMarker(endCenter.x, endCenter.z, 0x06d6a0, 0.5);
+          var endLabel = addLabel(endCenter.x, endCenter.z, 1.3, quest.endLabel);
+          questObjects.push({ type: "guard", mesh: guardMesh, labelMesh: guardLabel, x: guardCenter.x, z: guardCenter.z, radius: 8 });
+          questObjects.push({ type: "stealthEnd", mesh: endMesh, labelMesh: endLabel, x: endCenter.x, z: endCenter.z });
+        } else if (quest.engine === "collect") {
+          quest.blocks.forEach(function (b) {
+            var c = yardSpot(b);
+            var m = addMarker(c.x, c.z, 0x06d6a0, 0.4);
+            var lbl = addLabel(c.x, c.z, 1.1, quest.itemLabel);
+            questObjects.push({ type: "collectItem", mesh: m, labelMesh: lbl, x: c.x, z: c.z, collected: false });
+          });
+        } else if (quest.engine === "herd") {
+          var penCenter = yardSpot(quest.penBlock);
+          var penMesh = addMarker(penCenter.x, penCenter.z, 0xffd166, 0.4);
+          var penLabel = addLabel(penCenter.x, penCenter.z, 1.1, quest.penLabel);
+          questObjects.push({ type: "pen", mesh: penMesh, labelMesh: penLabel, x: penCenter.x, z: penCenter.z });
+          quest.blocks.forEach(function (b) {
+            var c = yardSpot(b);
+            var geo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            var mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            var m = new THREE.Mesh(geo, mat);
+            m.position.set(c.x, 0.3, c.z);
+            scene.add(m);
+            var chLabel = addLabel(c.x, c.z, 0.9, quest.itemLabel);
+            questObjects.push({ type: "chicken", mesh: m, labelMesh: chLabel, x: c.x, z: c.z, activated: false, herded: false });
+          });
+        } else if (quest.engine === "boss") {
+          var pCenter = blockCenter(quest.block);
+          var nestGeo = new THREE.SphereGeometry(0.8, 10, 10);
+          var nestMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+          var nestMesh = new THREE.Mesh(nestGeo, nestMat);
+          nestMesh.position.set(pCenter.x, 3, pCenter.z);
+          scene.add(nestMesh);
+          var nestLabel = addLabel(pCenter.x, pCenter.z, 3.9, quest.itemLabel);
+          questObjects.push({ type: "crowNest", mesh: nestMesh, labelMesh: nestLabel, x: pCenter.x, z: pCenter.z });
+        }
+      }
+
+      var questObjects = [];
+      function clearQuestObjects() {
+        questObjects.forEach(function (o) {
+          scene.remove(o.mesh);
+          if (o.labelMesh) scene.remove(o.labelMesh);
+        });
+        questObjects = [];
+      }
+
+      // ================= player movement & collision =================
+      function collidesWithBuilding(x, z, buffer) {
+        for (var h = 0; h < buildingColliders.length; h++) {
+          var hc = buildingColliders[h];
+          var dx = x - hc.x, dz = z - hc.z;
+          if (Math.sqrt(dx * dx + dz * dz) < hc.radius + buffer) return true;
+        }
+        return false;
+      }
+
+      function updatePlayer(dt) {
+        var stage = currentGrowthStage();
+        var speedMul = state.hunger <= HUNGER_WEAK_THRESHOLD ? 0.5 : 1;
+        var turn = 0, forward = 0;
+
+        if (keys["arrowleft"] || keys["a"]) turn += 1;
+        if (keys["arrowright"] || keys["d"]) turn -= 1;
+        if (keys["arrowup"] || keys["w"]) forward += 1;
+        if (keys["arrowdown"] || keys["s"]) forward -= 1;
+
+        if (turn === 0 && forward === 0 && (joyVec.x !== 0 || joyVec.y !== 0)) {
+          turn = -joyVec.x;
+          forward = -joyVec.y;
+        }
+
+        player.yaw += turn * TURN_SPEED * dt;
+
+        var speed = stage.speed * speedMul;
+        var moveX = Math.sin(player.yaw) * forward * speed * dt;
+        var moveZ = Math.cos(player.yaw) * forward * speed * dt;
+
+        var newX = player.x + moveX;
+        var newZ = player.z + moveZ;
+
+        if (!collidesWithBuilding(newX, player.z, 0.5)) player.x = newX;
+        if (!collidesWithBuilding(player.x, newZ, 0.5)) player.z = newZ;
+
+        player.x = Math.max(-HALF_WORLD + 1, Math.min(HALF_WORLD - 1, player.x));
+        player.z = Math.max(-HALF_WORLD + 1, Math.min(HALF_WORLD - 1, player.z));
+
+        if (playerModel) {
+          playerModel.position.set(player.x, 0, player.z);
+          playerModel.rotation.y = player.yaw - Math.PI / 2;
+          playerModel.scale.set(stage.scale, stage.scale, stage.scale);
+        }
+
+        var camDistance = 1.1 + stage.scale * 0.4;
+        var camHeight = stage.eyeHeight + 0.3 + stage.scale * 0.15;
+        var camX = player.x - Math.sin(player.yaw) * camDistance;
+        var camZ = player.z - Math.cos(player.yaw) * camDistance;
+        camera.position.set(camX, camHeight, camZ);
+
+        var lookAheadDist = 4;
+        var lookAtX = player.x + Math.sin(player.yaw) * lookAheadDist;
+        var lookAtZ = player.z + Math.cos(player.yaw) * lookAheadDist;
+        camera.lookAt(lookAtX, stage.eyeHeight, lookAtZ);
+      }
+
+      // ================= hunger =================
+      function updateHunger(dt) {
+        state.hunger = Math.max(0, state.hunger - HUNGER_DECAY_PER_SEC * dt);
+        document.getElementById("hungerBarFill").style.width = state.hunger + "%";
+        document.getElementById("hungerBarFill").style.background = state.hunger <= HUNGER_WEAK_THRESHOLD ? "#e63946" : "#ffb703";
+      }
+
+      // ================= companions follow =================
+      function updateCompanions(dt) {
+        var ids = Object.keys(companionMeshes);
+        for (var idx = 0; idx < ids.length; idx++) {
+          var c = companionMeshes[ids[idx]];
+          var offset = followOffsets[idx % followOffsets.length];
+          var targetX = player.x + Math.sin(player.yaw) * offset.dz + Math.cos(player.yaw) * offset.dx;
+          var targetZ = player.z + Math.cos(player.yaw) * offset.dz - Math.sin(player.yaw) * offset.dx;
+          c.x += (targetX - c.x) * Math.min(1, dt * 3);
+          c.z += (targetZ - c.z) * Math.min(1, dt * 3);
+          c.group.position.set(c.x, 0, c.z);
+          var lookYaw = Math.atan2(player.x - c.x, player.z - c.z);
+          c.group.rotation.y = lookYaw - Math.PI / 2;
+        }
+      }
+
+      // ================= interaction (food / skins / companions) =================
+      var nearestInteractable = null;
+
+      function updateInteractables(dt) {
+        nearestInteractable = null;
+        var bestDist = INTERACT_RADIUS;
+        for (var k = 0; k < interactables.length; k++) {
+          var it = interactables[k];
+          if (!it.mesh) continue;
+          it.mesh.rotation.y += dt * 1.5;
+          var dx = player.x - it.x, dz = player.z - it.z;
+          var dist = Math.sqrt(dx * dx + dz * dz);
+          if (it.type === "food" && dist < 1.6) {
+            state.hunger = Math.min(HUNGER_MAX, state.hunger + HUNGER_FOOD_RESTORE);
+            removeInteractable(it);
+            k--;
+            setTimeout(spawnFood, 4000);
+            continue;
+          }
+          if (dist < bestDist) { bestDist = dist; nearestInteractable = it; }
+        }
+
+        // quest targets that need a button press (approach / crow nest) also
+        // deserve a prompt, so the player can actually tell when they're close enough
+        for (var q = 0; q < questObjects.length; q++) {
+          var qo = questObjects[q];
+          if (qo.type !== "approachTarget" && qo.type !== "crowNest") continue;
+          var qdx = player.x - qo.x, qdz = player.z - qo.z;
+          var qdist = Math.sqrt(qdx * qdx + qdz * qdz);
+          if (qdist < bestDist) { bestDist = qdist; nearestInteractable = qo; }
+        }
+
+        document.getElementById("interactPrompt").style.display = (nearestInteractable && !bossActive) ? "block" : "none";
+      }
+
+      function removeInteractable(it) {
+        scene.remove(it.mesh);
+        if (it.labelMesh) scene.remove(it.labelMesh);
+        var idx = interactables.indexOf(it);
+        if (idx !== -1) interactables.splice(idx, 1);
+      }
+
+      function doInteract() {
+        if (bossActive) { doBark(); return; }
+
+        if (nearestInteractable) {
+          var it = nearestInteractable;
+          if (it.type === "skin") {
+            state.unlockedSkins.push(it.def.id);
+            showToast("Unlocked skin: " + it.def.name + "!");
+            removeInteractable(it);
+            saveState();
+          } else if (it.type === "companion") {
+            state.recruitedCompanions.push(it.def.id);
+            showToast(it.def.name + " joined your pack!");
+            removeInteractable(it);
+            spawnCompanionFollower(it.def);
+            updateCompanionCountLabel();
+            saveState();
+          }
+        }
+
+        // quest targets (the steak, the crow nest, etc.) live in questObjects,
+        // not interactables, so this must run regardless of nearestInteractable
+        checkQuestInteract();
+      }
+
+      // ================= quest logic =================
+      function checkQuestInteract() {
+        var quest = currentQuest();
+        if (!quest) return;
+        var px = player.x, pz = player.z;
+
+        if (quest.engine === "approach") {
+          var target = questObjects[0];
+          if (target && dist2(px, pz, target.x, target.z) < INTERACT_RADIUS) {
+            completeQuest();
+          }
+        } else if (quest.engine === "boss") {
+          var nest = questObjects[0];
+          if (nest && dist2(px, pz, nest.x, nest.z) < INTERACT_RADIUS) {
+            startBossFight();
+          }
+        }
+      }
+
+      function dist2(x1, z1, x2, z2) {
+        var dx = x1 - x2, dz = z1 - z2;
+        return Math.sqrt(dx * dx + dz * dz);
+      }
+
+      function updateQuestWorld(dt) {
+        var quest = currentQuest();
+        if (!quest) return;
+
+        if (quest.engine === "stealth") {
+          var guard = questObjects[0], end = questObjects[1];
+          if (guard && dist2(player.x, player.z, guard.x, guard.z) < guard.radius) {
+            showToast("You got too close! Sneak around.", 1800);
+          }
+          if (end && dist2(player.x, player.z, end.x, end.z) < INTERACT_RADIUS) {
+            completeQuest();
+          }
+        } else if (quest.engine === "collect") {
+          for (var c = 0; c < questObjects.length; c++) {
+            var item = questObjects[c];
+            if (item.type === "collectItem" && !item.collected && dist2(player.x, player.z, item.x, item.z) < 1.6) {
+              item.collected = true;
+              scene.remove(item.mesh);
+              if (item.labelMesh) scene.remove(item.labelMesh);
+              var remaining = questObjects.filter(function (o) { return o.type === "collectItem" && !o.collected; }).length;
+              showToast(remaining > 0 ? (remaining + " more to find!") : "Found them all!", 1400);
+              if (remaining === 0) completeQuest();
+            }
+          }
+        } else if (quest.engine === "herd") {
+          var pen = questObjects.filter(function (o) { return o.type === "pen"; })[0];
+          var chickens = questObjects.filter(function (o) { return o.type === "chicken"; });
+          chickens.forEach(function (ch) {
+            if (ch.herded) return;
+            if (!ch.activated && dist2(player.x, player.z, ch.x, ch.z) < 3.5) {
+              ch.activated = true;
+            }
+            if (ch.activated && pen) {
+              var dx = pen.x - ch.x, dz = pen.z - ch.z;
+              var d = Math.sqrt(dx * dx + dz * dz);
+              if (d > 0.3) {
+                ch.x += (dx / d) * dt * 3;
+                ch.z += (dz / d) * dt * 3;
+                ch.mesh.position.set(ch.x, 0.3, ch.z);
+                if (ch.labelMesh) ch.labelMesh.position.set(ch.x, 0.9, ch.z);
+              } else {
+                ch.herded = true;
+                scene.remove(ch.mesh);
+                if (ch.labelMesh) scene.remove(ch.labelMesh);
+              }
+            }
+          });
+          if (chickens.length && chickens.every(function (ch) { return ch.herded; })) {
+            completeQuest();
+          }
+        }
+      }
+
+      function completeQuest() {
+        if (state.level >= TOTAL_LEVELS) return;
+        showToast("Quest complete! Leveling up!", 2000);
+        state.level++;
+        saveState();
+        setupQuestObjects();
+        updateHUDText();
+      }
+
+      // ================= boss fight =================
+      var crows = [];
+      var barkCooldownLeft = 0;
+      var bossPhase = "platoon"; // platoon -> bossCrow -> won
+      var bossMesh = null;
+      var bossHitsLeft = BOSS_HITS;
+
+      function buildCrow() {
+        var group = new THREE.Group();
+        var bodyGeo = new THREE.SphereGeometry(0.35, 8, 8);
+        var bodyMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+        var body = new THREE.Mesh(bodyGeo, bodyMat);
+        group.add(body);
+        var beakGeo = new THREE.ConeGeometry(0.08, 0.25, 6);
+        var beakMat = new THREE.MeshLambertMaterial({ color: 0xffb703 });
+        var beak = new THREE.Mesh(beakGeo, beakMat);
+        beak.rotation.z = Math.PI / 2;
+        beak.position.x = 0.35;
+        group.add(beak);
+        return group;
+      }
+
+      function startBossFight() {
+        if (bossActive || bossDefeated) return;
+        bossActive = true;
+        bossPhase = "platoon";
+        document.getElementById("bossHud").style.display = "block";
+        showToast("The Crow Boss attacks!", 2200);
+
+        var parkCenter = blockCenter(PARK_BLOCK);
+        for (var i = 0; i < CROW_COUNT; i++) {
+          var group = buildCrow();
+          var angle = (i / CROW_COUNT) * Math.PI * 2;
+          group.position.set(parkCenter.x + Math.cos(angle) * 10, 4 + Math.random() * 2, parkCenter.z + Math.sin(angle) * 10);
+          scene.add(group);
+          crows.push({ group: group, hits: 0, fled: false, diveTimer: Math.random() * 2 });
+        }
+        updateCrowsLeftLabel();
+      }
+
+      function updateCrowsLeftLabel() {
+        var alive = crows.filter(function (c) { return !c.fled; }).length;
+        document.getElementById("crowsLeft").textContent = bossPhase === "bossCrow" ? "Boss (" + bossHitsLeft + " hits left)" : alive;
+      }
+
+      function updateBoss(dt) {
+        barkCooldownLeft = Math.max(0, barkCooldownLeft - dt);
+
+        if (bossPhase === "platoon") {
+          var aliveCrows = crows.filter(function (c) { return !c.fled; });
+          aliveCrows.forEach(function (c) {
+            c.diveTimer -= dt;
+            var toPlayerX = player.x - c.group.position.x;
+            var toPlayerZ = player.z - c.group.position.z;
+            var d = Math.sqrt(toPlayerX * toPlayerX + toPlayerZ * toPlayerZ);
+            if (d > 0.1) {
+              c.group.position.x += (toPlayerX / d) * dt * 3.2;
+              c.group.position.z += (toPlayerZ / d) * dt * 3.2;
+            }
+            c.group.position.y = 1.4 + Math.sin(Date.now() / 200 + c.group.position.x) * 0.4;
+            if (d < 1.6 && c.diveTimer <= 0) {
+              c.diveTimer = 1.5;
+              showToast("A crow struck you!", 900);
+              state.hunger = Math.max(0, state.hunger - 8);
+            }
+          });
+          if (aliveCrows.length === 0) {
+            bossPhase = "bossCrow";
+            spawnBossCrow();
+          }
+        } else if (bossPhase === "bossCrow" && bossMesh) {
+          var toPX = player.x - bossMesh.position.x;
+          var toPZ = player.z - bossMesh.position.z;
+          var dd = Math.sqrt(toPX * toPX + toPZ * toPZ);
+          if (dd > 0.1) {
+            bossMesh.position.x += (toPX / dd) * dt * 2.4;
+            bossMesh.position.z += (toPZ / dd) * dt * 2.4;
+          }
+          bossMesh.position.y = 1.8 + Math.sin(Date.now() / 250) * 0.5;
+        }
+
+        updateCrowsLeftLabel();
+      }
+
+      function spawnBossCrow() {
+        var parkCenter = blockCenter(PARK_BLOCK);
+        bossMesh = buildCrow();
+        bossMesh.scale.set(2.2, 2.2, 2.2);
+        bossMesh.position.set(parkCenter.x, 3, parkCenter.z - 8);
+        scene.add(bossMesh);
+        showToast("The Crow Boss itself descends!", 2200);
+      }
+
+      function doBark() {
+        if (barkCooldownLeft > 0) return;
+        barkCooldownLeft = BARK_COOLDOWN;
+
+        if (bossPhase === "platoon") {
+          crows.forEach(function (c) {
+            if (c.fled) return;
+            var dx = c.group.position.x - player.x, dz = c.group.position.z - player.z;
+            if (Math.sqrt(dx * dx + dz * dz) < BARK_RADIUS) {
+              c.hits++;
+              if (c.hits >= CROW_HITS_TO_FLEE) {
+                c.fled = true;
+                scene.remove(c.group);
+              }
+            }
+          });
+          // recruited companions help thin the platoon over time
+          var recruited = state.recruitedCompanions.length;
+          if (recruited > 0 && Math.random() < 0.25 * recruited) {
+            var alive = crows.filter(function (c) { return !c.fled; });
+            if (alive.length) {
+              var pick = alive[Math.floor(Math.random() * alive.length)];
+              pick.fled = true;
+              scene.remove(pick.group);
+            }
+          }
+        } else if (bossPhase === "bossCrow" && bossMesh) {
+          var bx = bossMesh.position.x - player.x, bz = bossMesh.position.z - player.z;
+          if (Math.sqrt(bx * bx + bz * bz) < BARK_RADIUS + 1) {
+            bossHitsLeft--;
+            if (bossHitsLeft <= 0) {
+              scene.remove(bossMesh);
+              winBossFight();
+            }
+          }
+        }
+      }
+
+      function winBossFight() {
+        bossActive = false;
+        bossDefeated = true;
+        document.getElementById("bossHud").style.display = "none";
+        state.level = TOTAL_LEVELS;
+        saveState();
+        setTimeout(function () {
+          document.getElementById("hud").style.display = "none";
+          document.getElementById("controls").style.display = "none";
+          document.getElementById("victoryScreen").style.display = "flex";
+        }, 1200);
+      }
+
+      // ================= HUD helpers =================
+      function showToast(text, duration) {
+        var el = document.getElementById("toast");
+        el.textContent = text;
+        el.style.display = "block";
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(function () { el.style.display = "none"; }, duration || 2000);
+      }
+
+      function updateHUDText() {
+        document.getElementById("levelNum").textContent = state.level;
+        document.getElementById("growthLabel").textContent = currentGrowthStage().name;
+        var quest = currentQuest();
+        document.getElementById("questText").textContent = quest ? quest.title : "";
+        updateCompanionCountLabel();
+      }
+
+      function updateCompanionCountLabel() {
+        document.getElementById("companionCount").textContent = "Companions: " + state.recruitedCompanions.length;
+      }
+
+      // ================= skin panel =================
+      function renderSkinPanel() {
+        var list = document.getElementById("skinList");
+        list.innerHTML = "";
+        var baseBreed = BREEDS[state.breed];
+        var baseChip = document.createElement("div");
+        baseChip.className = "skin-chip unlocked" + (state.activeSkin === null ? " active" : "");
+        baseChip.textContent = baseBreed.name;
+        baseChip.onclick = function () { state.activeSkin = null; saveState(); rebuildPlayerModel(); renderSkinPanel(); };
+        list.appendChild(baseChip);
+
+        SKIN_DEFS.forEach(function (skin) {
+          var unlocked = state.unlockedSkins.indexOf(skin.id) !== -1;
+          var chip = document.createElement("div");
+          chip.className = "skin-chip" + (unlocked ? " unlocked" : "") + (state.activeSkin === skin.id ? " active" : "");
+          chip.textContent = unlocked ? skin.name : "??? (find in town)";
+          if (unlocked) {
+            chip.onclick = function (id) {
+              return function () { state.activeSkin = id; saveState(); rebuildPlayerModel(); renderSkinPanel(); };
+            }(skin.id);
+          }
+          list.appendChild(chip);
+        });
+      }
+
+      // ================= input =================
+      window.addEventListener("keydown", function (e) {
+        keys[e.key.toLowerCase()] = true;
+        if (e.key === " ") { doInteract(); e.preventDefault(); }
+      });
+      window.addEventListener("keyup", function (e) { keys[e.key.toLowerCase()] = false; });
+
+      document.getElementById("actionBtn").addEventListener("click", doInteract);
+      document.getElementById("skinBtn").addEventListener("click", function () {
+        renderSkinPanel();
+        document.getElementById("skinPanel").style.display = "flex";
+      });
+      document.getElementById("closeSkinPanel").addEventListener("click", function () {
+        document.getElementById("skinPanel").style.display = "none";
+      });
+      document.getElementById("playAgainBtn").addEventListener("click", resetGame);
+
+      // joystick
+      var joystick = document.getElementById("joystick");
+      var joystickKnob = document.getElementById("joystickKnob");
+      var joyActive = false, joyCenter = { x: 0, y: 0 };
+      var JOY_RADIUS = 40;
+
+      function joyStart(cx, cy) {
+        var rect = joystick.getBoundingClientRect();
+        joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        joyActive = true;
+        joyMove(cx, cy);
+      }
+      function joyMove(cx, cy) {
+        if (!joyActive) return;
+        var dx = cx - joyCenter.x, dy = cy - joyCenter.y;
+        var dist = Math.min(JOY_RADIUS, Math.hypot(dx, dy));
+        var angle = Math.atan2(dy, dx);
+        var kx = Math.cos(angle) * dist, ky = Math.sin(angle) * dist;
+        joystickKnob.style.left = (32 + kx) + "px";
+        joystickKnob.style.top = (32 + ky) + "px";
+        joyVec.x = kx / JOY_RADIUS;
+        joyVec.y = ky / JOY_RADIUS;
+      }
+      function joyEnd() {
+        joyActive = false;
+        joyVec.x = 0; joyVec.y = 0;
+        joystickKnob.style.left = "32px";
+        joystickKnob.style.top = "32px";
+      }
+      joystick.addEventListener("touchstart", function (e) { joyStart(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchmove", function (e) { joyMove(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchend", function (e) { joyEnd(); e.preventDefault(); }, { passive: false });
+
+      // ================= boot / character select =================
+      var breedCards = document.querySelectorAll(".breed-card");
+      for (var bc = 0; bc < breedCards.length; bc++) {
+        breedCards[bc].addEventListener("click", function () {
+          state.breed = this.getAttribute("data-breed");
+          state.level = 1;
+          state.hunger = HUNGER_MAX;
+          state.unlockedSkins = [];
+          state.activeSkin = null;
+          state.recruitedCompanions = [];
+          saveState();
+          beginGame();
+        });
+      }
+
+      function beginGame() {
+        document.getElementById("characterSelect").style.display = "none";
+        document.getElementById("hud").style.display = "block";
+        document.getElementById("controls").style.display = "flex";
+
+        if (!scene) initThree();
+        rebuildPlayerModel();
+
+        for (var f = 0; f < 8; f++) spawnFood();
+        setupSkinPickups();
+        setupCompanions();
+        setupQuestObjects();
+        updateHUDText();
+
+        gameStarted = true;
+        requestAnimationFrame(animate);
+      }
+
+      function resetGame() {
+        localStorage.removeItem(STORAGE_KEY);
+        state = {
+          breed: null, level: 1, hunger: HUNGER_MAX,
+          unlockedSkins: [], activeSkin: null, recruitedCompanions: []
+        };
+
+        interactables.forEach(function (it) {
+          if (scene) { scene.remove(it.mesh); if (it.labelMesh) scene.remove(it.labelMesh); }
+        });
+        interactables = [];
+
+        Object.keys(companionMeshes).forEach(function (id) {
+          if (scene) scene.remove(companionMeshes[id].group);
+        });
+        companionMeshes = {};
+
+        clearQuestObjects();
+
+        crows.forEach(function (c) { if (scene) scene.remove(c.group); });
+        crows = [];
+        if (bossMesh && scene) scene.remove(bossMesh);
+        bossMesh = null;
+        bossPhase = "platoon";
+        bossHitsLeft = BOSS_HITS;
+        barkCooldownLeft = 0;
+        bossActive = false;
+        bossDefeated = false;
+        document.getElementById("bossHud").style.display = "none";
+
+        gameStarted = false;
+
+        document.getElementById("victoryScreen").style.display = "none";
+        document.getElementById("hud").style.display = "none";
+        document.getElementById("controls").style.display = "none";
+        document.getElementById("characterSelect").style.display = "block";
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        var dt = Math.min(0.05, clock.getDelta());
+        try {
+          if (gameStarted) {
+            updatePlayer(dt);
+            updateHunger(dt);
+            updateInteractables(dt);
+            updateCompanions(dt);
+            updateQuestWorld(dt);
+            if (bossActive) updateBoss(dt);
+          }
+          if (renderer && scene && camera) renderer.render(scene, camera);
+        } catch (e) {
+          console.error("Dog game frame error:", e);
+        }
+      }
+
+      if (loadState()) {
+        beginGame();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Let's Game!</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background-color: #ffffff;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        padding-top: 100px;
+      }
+
+      h1 {
+        font-size: 80px;
+        color: limegreen;
+      }
+
+      a.back-link {
+        display: inline-block;
+        font-size: 16px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        background-color: limegreen;
+        color: white;
+        text-decoration: none;
+        margin-top: 20px;
+      }
+
+      a.back-link:hover {
+        opacity: 0.85;
+      }
+
+      .game-buttons {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
+
+      a.game-link {
+        display: inline-block;
+        font-size: 20px;
+        padding: 15px 30px;
+        background-color: limegreen;
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      a.game-link:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-buttons">
+      <a class="game-link" href="maze-game.html">Play the Maze Game!</a>
+      <a class="game-link" href="dog-game.html">Dog game!</a>
+      <a class="game-link" href="racing-game.html">Play racing game!</a>
+    </div>
+
+    <h1>Let's Game!</h1>
+    <a class="back-link" href="index.html">Back to party</a>
+  </body>
+</html>

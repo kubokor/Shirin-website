@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Turbo Paws Racing</title>
+    <style>
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ffe066, #ff9a56, #6ec6ff, #7bed9f);
+        font-family: Arial, sans-serif;
+        color: #222;
+        text-align: center;
+      }
+
+      h1 {
+        color: #fff;
+        text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+        font-size: 34px;
+        margin: 18px 0 4px;
+      }
+
+      a.back-link {
+        display: inline-block;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        background-color: limegreen;
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+      }
+
+      a.back-link:hover { opacity: 0.85; }
+
+      /* ---------- hub screen ---------- */
+      #hub {
+        max-width: 720px;
+        margin: 0 auto 40px;
+        padding: 0 16px;
+      }
+
+      .hub-card {
+        background: white;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        margin-bottom: 16px;
+      }
+
+      #animalLine { font-size: 16px; margin: 4px 0 10px; }
+      #animalLine b { color: #e07a1f; }
+
+      #coinLine { font-size: 18px; font-weight: bold; color: #b8860b; margin-bottom: 10px; }
+
+      .color-swatches { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+      .color-swatch {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 3px solid #ccc;
+        cursor: pointer;
+      }
+
+      .color-swatch.active { border-color: #222; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #222; }
+      .color-swatch.locked { opacity: 0.25; cursor: default; }
+
+      .upgrade-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 4px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+      }
+
+      .upgrade-row button {
+        font-size: 13px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        background: #ff8c42;
+        color: white;
+        cursor: pointer;
+      }
+
+      .upgrade-row button:disabled { background: #ccc; cursor: default; }
+
+      #raceGrid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .race-slot {
+        border-radius: 12px;
+        padding: 10px 4px;
+        font-size: 13px;
+        background: #f0f0f0;
+        color: #888;
+      }
+
+      .race-slot.unlocked {
+        background: #eaffea;
+        color: #1b5e20;
+        cursor: pointer;
+        border: 2px solid #6ec651;
+      }
+
+      .race-slot.unlocked:hover { background: #d4ffd4; }
+
+      .race-slot .best { font-size: 11px; display: block; }
+      .race-slot .trophy { font-size: 16px; }
+
+      /* ---------- race screen ---------- */
+      #raceScreen { display: none; }
+
+      #raceHud {
+        max-width: 900px;
+        margin: 8px auto 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+        font-size: 15px;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      #canvasWrap {
+        display: inline-block;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 0 0 3px #333, 0 10px 30px rgba(0, 0, 0, 0.4);
+        max-width: calc(100vw - 20px);
+      }
+
+      canvas {
+        display: block;
+        background-color: #6fbf6f;
+        max-width: 100%;
+        height: auto;
+      }
+
+      #raceMessage {
+        min-height: 24px;
+        color: #fff;
+        font-weight: bold;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        font-size: 18px;
+        margin: 6px 0;
+      }
+
+      #raceControls {
+        max-width: 900px;
+        margin: 14px auto 40px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 30px;
+      }
+
+      #joystick {
+        display: none;
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        touch-action: none;
+      }
+
+      #joystickKnob {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #ff3b3b;
+        top: 32px;
+        left: 32px;
+        box-shadow: 0 0 10px rgba(255, 59, 59, 0.8);
+      }
+
+      @media (pointer: coarse) {
+        #joystick { display: block; }
+        #keyboardHint { display: none; }
+      }
+
+      #keyboardHint {
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        font-size: 13px;
+        background: rgba(0, 0, 0, 0.25);
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+
+      #itemBtn {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #ffd166;
+        color: #4a3200;
+        font-weight: bold;
+        font-size: 13px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+      }
+
+      #itemBtn:active { opacity: 0.85; }
+
+      /* ---------- results screen ---------- */
+      #resultsScreen {
+        display: none;
+        max-width: 480px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+
+      #resultsScreen .hub-card { text-align: left; }
+      #resultsScreen h2 { text-align: center; color: #e07a1f; }
+      #standingsList { list-style: none; padding: 0; margin: 0; }
+      #standingsList li {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 4px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+      }
+      #standingsList li.you { font-weight: bold; color: #1b5e20; }
+
+      #resultsScreen button {
+        display: block;
+        margin: 16px auto 0;
+        font-size: 16px;
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        background: limegreen;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Turbo Paws Racing</h1>
+    <a class="back-link" href="gaming.html">Back to games</a>
+
+    <div id="hub">
+      <div class="hub-card">
+        <p id="animalLine">You're racing as a <b id="animalName">Koala</b>!</p>
+        <p id="coinLine">🪙 <span id="coinTotal">0</span> coins</p>
+        <div class="color-swatches" id="colorSwatches"></div>
+      </div>
+
+      <div class="hub-card">
+        <h3 style="margin-top:0;">Garage</h3>
+        <div class="upgrade-row">
+          <span>Speed (Lv <span id="speedLevel">0</span>/4)</span>
+          <button id="buySpeed">Upgrade (<span id="speedCost">35</span>🪙)</button>
+        </div>
+        <div class="upgrade-row">
+          <span>Handling (Lv <span id="handlingLevel">0</span>/4)</span>
+          <button id="buyHandling">Upgrade (<span id="handlingCost">35</span>🪙)</button>
+        </div>
+        <div class="upgrade-row">
+          <span>Item Capacity (Lv <span id="itemsLevel">0</span>/2)</span>
+          <button id="buyItems">Upgrade (<span id="itemsCost">60</span>🪙)</button>
+        </div>
+      </div>
+
+      <div class="hub-card">
+        <h3 style="margin-top:0;">Races</h3>
+        <div id="raceGrid"></div>
+      </div>
+    </div>
+
+    <div id="raceScreen">
+      <div id="raceHud">
+        <span>Race <span id="hudRaceNum">1</span> / 10 — Lap <span id="hudLap">1</span>/2</span>
+        <span>Position: <span id="hudPosition">1</span>/6</span>
+        <span>Item: <span id="hudItem">none</span></span>
+      </div>
+      <div id="raceMessage"></div>
+      <div id="canvasWrap">
+        <canvas id="raceCanvas" width="900" height="600"></canvas>
+      </div>
+      <div id="raceControls">
+        <div id="joystick"><div id="joystickKnob"></div></div>
+        <p id="keyboardHint">Steer: Left/Right<br/>Gas/Brake: Up/Down<br/>Item: Spacebar</p>
+        <button id="itemBtn">Use Item</button>
+      </div>
+    </div>
+
+    <div id="resultsScreen">
+      <div class="hub-card">
+        <h2 id="resultsTitle">Race Complete!</h2>
+        <ul id="standingsList"></ul>
+        <p id="resultsCoinLine" style="text-align:center;font-weight:bold;"></p>
+        <p id="resultsUnlockLine" style="text-align:center;color:#e07a1f;font-weight:bold;"></p>
+      </div>
+      <button id="continueBtn">Back to Garage</button>
+    </div>
+
+    <script>
+      // ================= constants =================
+      var TOTAL_RACES = 10;
+      var OPPONENTS = 5;
+      var LAPS = 2;
+      var STORAGE_KEY = "racingGameState_v1";
+
+      var MAX_SPEED_BASE = 260;
+      var ACCEL = 340;
+      var BRAKE_DECEL = 420;
+      var FRICTION_DECEL = 160;
+      var TURN_RATE_BASE = 2.6;
+      var OFFTRACK_MULT = 0.45;
+      var SPIN_DURATION = 1.1;
+      var STUCK_TIMEOUT = 6;
+
+      var ANIMALS = ["Koala", "Cat", "Giraffe", "Fox", "Panda", "Rabbit", "Owl", "Corgi"];
+      var ANIMAL_TINTS = {
+        Koala: "#8a8f99", Cat: "#e8935a", Giraffe: "#e8c96a", Fox: "#e0653a",
+        Panda: "#2b2b2b", Rabbit: "#f2e6e6", Owl: "#8a6a45", Corgi: "#d9a441"
+      };
+
+      var BASE_COLORS = [
+        { id: "red", hex: "#e63946" }, { id: "blue", hex: "#2a6fdb" },
+        { id: "green", hex: "#2ecc71" }, { id: "yellow", hex: "#f4d03f" },
+        { id: "orange", hex: "#ff8c42" }, { id: "purple", hex: "#9b59b6" }
+      ];
+
+      var EXCLUSIVE_COLORS = [
+        { race: 1, id: "neon-green", name: "Neon Green", hex: "#39ff14" },
+        { race: 2, id: "electric-blue", name: "Electric Blue", hex: "#00c8ff" },
+        { race: 3, id: "hot-pink", name: "Hot Pink", hex: "#ff1493" },
+        { race: 4, id: "cyber-purple", name: "Cyber Purple", hex: "#a742f5" },
+        { race: 5, id: "fire-red", name: "Fire Red", hex: "#ff2400" },
+        { race: 6, id: "ice-white", name: "Ice White", hex: "#eaf6ff" },
+        { race: 7, id: "chrome-silver", name: "Chrome Silver", hex: "#c0c0c8" },
+        { race: 8, id: "galaxy-indigo", name: "Galaxy Indigo", hex: "#4b0082" },
+        { race: 9, id: "gold", name: "Gold", hex: "#ffd700" },
+        { race: 10, id: "rainbow", name: "Rainbow", hex: "rainbow" }
+      ];
+
+      var CAR_TEMPLATE = [
+        "..BBB..",
+        ".BBBBB.",
+        "BBWWWBB",
+        "BBWWWBB",
+        "BBBBBBB",
+        "K.BBB.K",
+        "K.BBB.K",
+        "BBBBBBB",
+        "BBWWWBB",
+        "BBBBBBB",
+        ".BBBBB."
+      ];
+      var PIXEL = 3;
+
+      // ================= state =================
+      var state = {
+        animal: null,
+        activeColorHex: null,
+        unlockedColorIds: [],
+        coins: 0,
+        upgrades: { speed: 0, handling: 0, items: 0 },
+        unlockedRace: 1,
+        bestPlacement: {}, // raceIndex -> best (1 is best)
+        wonRaces: []
+      };
+
+      function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function loadState() {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        try {
+          var saved = JSON.parse(raw);
+          if (saved && saved.animal && saved.activeColorHex) { state = saved; return true; }
+        } catch (e) {}
+        return false;
+      }
+
+      function newRun() {
+        state.animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+        state.activeColorHex = BASE_COLORS[Math.floor(Math.random() * BASE_COLORS.length)].hex;
+        state.unlockedColorIds = [];
+        state.coins = 0;
+        state.upgrades = { speed: 0, handling: 0, items: 0 };
+        state.unlockedRace = 1;
+        state.bestPlacement = {};
+        state.wonRaces = [];
+        saveState();
+      }
+
+      // ================= upgrade math =================
+      function upgradeCost(kind, level) {
+        if (kind === "items") return (level + 1) * 60;
+        return (level + 1) * 35;
+      }
+      function maxLevel(kind) { return kind === "items" ? 2 : 4; }
+      function currentMaxSpeed() { return MAX_SPEED_BASE * (1 + state.upgrades.speed * 0.06); }
+      function currentTurnRate() { return TURN_RATE_BASE * (1 + state.upgrades.handling * 0.10); }
+      function currentItemCapacity() { return 1 + state.upgrades.items; }
+
+      // ================= track generation =================
+      function catmullRom(p0, p1, p2, p3, t) {
+        var t2 = t * t, t3 = t2 * t;
+        return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+      }
+      function splineLoop(points, segmentsPerPoint) {
+        var result = [];
+        var n = points.length;
+        for (var i = 0; i < n; i++) {
+          var p0 = points[(i - 1 + n) % n];
+          var p1 = points[i];
+          var p2 = points[(i + 1) % n];
+          var p3 = points[(i + 2) % n];
+          for (var t = 0; t < segmentsPerPoint; t++) {
+            var s = t / segmentsPerPoint;
+            result.push({
+              x: catmullRom(p0.x, p1.x, p2.x, p3.x, s),
+              y: catmullRom(p0.y, p1.y, p2.y, p3.y, s)
+            });
+          }
+        }
+        return result;
+      }
+
+      function generateTrack(raceIndex) {
+        var waypointCount = 10 + Math.min(8, Math.floor(raceIndex * 0.8));
+        var baseRadius = 260;
+        var jitter = 35 + raceIndex * 7;
+        var points = [];
+        for (var i = 0; i < waypointCount; i++) {
+          var angle = (i / waypointCount) * Math.PI * 2;
+          var r = baseRadius + (Math.random() * 2 - 1) * jitter;
+          points.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+        }
+        var roadWidth = Math.max(58, 96 - raceIndex * 3);
+        var renderPath = splineLoop(points, 10);
+
+        var itemBoxes = [];
+        var coins = [];
+        for (var w = 0; w < points.length; w++) {
+          if (w % 3 === 1) {
+            var p = points[w];
+            itemBoxes.push({ x: p.x, y: p.y, taken: 0 });
+          }
+          var nextP = points[(w + 1) % points.length];
+          for (var c = 0; c < 2; c++) {
+            var t = (c + 1) / 3;
+            coins.push({
+              x: points[w].x + (nextP.x - points[w].x) * t,
+              y: points[w].y + (nextP.y - points[w].y) * t,
+              taken: false
+            });
+          }
+        }
+
+        return { waypoints: points, roadWidth: roadWidth, renderPath: renderPath, itemBoxes: itemBoxes, coins: coins };
+      }
+
+      function pointSegDist(px, py, ax, ay, bx, by) {
+        var dx = bx - ax, dy = by - ay;
+        var len2 = dx * dx + dy * dy;
+        var t = len2 > 0 ? ((px - ax) * dx + (py - ay) * dy) / len2 : 0;
+        t = Math.max(0, Math.min(1, t));
+        var cx = ax + dx * t, cy = ay + dy * t;
+        return Math.hypot(px - cx, py - cy);
+      }
+
+      // ================= race state =================
+      var track = null;
+      var cars = [];
+      var raceIndex = 1;
+      var raceFinished = false;
+      var finishOrder = [];
+      var raceTimer = 0;
+      var RACE_TIMEOUT = 200;
+      var raceItemBoxes = [];
+      var raceCoins = [];
+      var thrownItems = [];
+
+      function makeCar(isPlayer, colorHex, skillMult) {
+        var start = track.waypoints[0];
+        var next = track.waypoints[1];
+        var ang = Math.atan2(next.y - start.y, next.x - start.x);
+        return {
+          isPlayer: isPlayer, x: start.x, y: start.y, angle: ang, speed: 0,
+          waypointIndex: 1, lap: 0, color: colorHex, spinTimer: 0, stuckTimer: 0,
+          heldItems: [], finished: false, finishRank: null, skillMult: skillMult || 1,
+          windshieldColor: isPlayer ? "#334" : "#223"
+        };
+      }
+
+      function startRace(idx) {
+        raceIndex = idx;
+        track = generateTrack(idx);
+        raceItemBoxes = track.itemBoxes.map(function (b) { return { x: b.x, y: b.y, taken: false, respawnAt: 0 }; });
+        raceCoins = track.coins.map(function (c) { return { x: c.x, y: c.y, taken: false }; });
+        thrownItems = [];
+        finishOrder = [];
+        raceFinished = false;
+        raceTimer = 0;
+
+        cars = [];
+        cars.push(makeCar(true, state.activeColorHex, 1));
+        for (var i = 0; i < OPPONENTS; i++) {
+          var aiSkill = 0.74 + idx * 0.017 + (Math.random() * 0.08 - 0.04);
+          var aiColor = BASE_COLORS[i % BASE_COLORS.length].hex;
+          cars.push(makeCar(false, aiColor, aiSkill));
+        }
+        // spread starting positions slightly so cars don't overlap
+        for (var s = 0; s < cars.length; s++) {
+          var back = s * 14;
+          cars[s].x -= Math.cos(cars[s].angle) * back;
+          cars[s].y -= Math.sin(cars[s].angle) * back;
+        }
+
+        showScreen("race");
+        updateRaceHud();
+      }
+
+      // ================= physics / update =================
+      function updateCar(car, dt, input) {
+        if (car.finished) return;
+
+        if (car.spinTimer > 0) {
+          car.spinTimer -= dt;
+          car.speed *= 0.9;
+        } else {
+          var maxSpeed = (car.isPlayer ? currentMaxSpeed() : MAX_SPEED_BASE * car.skillMult);
+          var turnRate = (car.isPlayer ? currentTurnRate() : TURN_RATE_BASE * 0.9);
+
+          var onSeg = currentSegment(car);
+          var offTrack = pointSegDist(car.x, car.y, onSeg.a.x, onSeg.a.y, onSeg.b.x, onSeg.b.y) > track.roadWidth / 2;
+          var speedCap = offTrack ? maxSpeed * OFFTRACK_MULT : maxSpeed;
+
+          if (input.accel) car.speed = Math.min(speedCap, car.speed + ACCEL * dt);
+          else if (input.brake) car.speed = Math.max(-speedCap * 0.5, car.speed - BRAKE_DECEL * dt);
+          else {
+            if (car.speed > 0) car.speed = Math.max(0, car.speed - FRICTION_DECEL * dt);
+            else if (car.speed < 0) car.speed = Math.min(0, car.speed + FRICTION_DECEL * dt);
+          }
+          if (car.speed > speedCap) car.speed = Math.max(speedCap, car.speed - ACCEL * dt);
+
+          var speedFrac = Math.max(0.35, Math.min(1, Math.abs(car.speed) / maxSpeed));
+          car.angle += input.turn * turnRate * speedFrac * dt * (car.speed < 0 ? -1 : 1);
+        }
+
+        car.x += Math.cos(car.angle) * car.speed * dt;
+        car.y += Math.sin(car.angle) * car.speed * dt;
+
+        // waypoint progress -- checking distance-to-target alone can let a car orbit
+        // a sharp-turn waypoint forever without ever getting close enough (classic
+        // pure-pursuit lock-up), so also advance once the car is closer to the *next*
+        // waypoint than the current one (meaning it has effectively passed it), and as
+        // an absolute safety valve, force-advance if truly stuck for too long -- since
+        // tracks are randomly generated, an occasional pathological sharp turn must
+        // never be able to soft-lock a race
+        car.stuckTimer += dt;
+        var target = track.waypoints[car.waypointIndex];
+        var nextTarget = track.waypoints[(car.waypointIndex + 1) % track.waypoints.length];
+        var reachRadius = track.roadWidth * 0.8;
+        var distToTarget = Math.hypot(car.x - target.x, car.y - target.y);
+        var distToNext = Math.hypot(car.x - nextTarget.x, car.y - nextTarget.y);
+        if (distToTarget < reachRadius || distToNext < distToTarget || car.stuckTimer > STUCK_TIMEOUT) {
+          car.waypointIndex++;
+          car.stuckTimer = 0;
+          if (car.waypointIndex >= track.waypoints.length) {
+            car.waypointIndex = 0;
+            car.lap++;
+            if (car.lap >= LAPS) {
+              car.finished = true;
+              finishOrder.push(car);
+              car.finishRank = finishOrder.length;
+            }
+          }
+        }
+      }
+
+      function currentSegment(car) {
+        var n = track.waypoints.length;
+        var bIdx = car.waypointIndex;
+        var aIdx = (bIdx - 1 + n) % n;
+        return { a: track.waypoints[aIdx], b: track.waypoints[bIdx] };
+      }
+
+      function aiInput(car) {
+        var target = track.waypoints[car.waypointIndex];
+        var toTarget = Math.atan2(target.y - car.y, target.x - car.x);
+        var diff = normalizeAngle(toTarget - car.angle);
+        var turn = Math.max(-1, Math.min(1, diff * 2.2));
+        return { accel: true, brake: false, turn: turn };
+      }
+
+      function normalizeAngle(a) {
+        while (a > Math.PI) a -= Math.PI * 2;
+        while (a < -Math.PI) a += Math.PI * 2;
+        return a;
+      }
+
+      function raceProgressScore(car) {
+        return car.lap * track.waypoints.length + car.waypointIndex;
+      }
+
+      function currentStandings() {
+        var sorted = cars.slice().sort(function (a, b) {
+          if (a.finished && b.finished) return a.finishRank - b.finishRank;
+          if (a.finished) return -1;
+          if (b.finished) return 1;
+          return raceProgressScore(b) - raceProgressScore(a);
+        });
+        return sorted;
+      }
+
+      function playerPosition() {
+        var standings = currentStandings();
+        for (var i = 0; i < standings.length; i++) {
+          if (standings[i].isPlayer) return i + 1;
+        }
+        return standings.length;
+      }
+
+      // ================= items =================
+      function pickupCheck(car) {
+        for (var i = 0; i < raceItemBoxes.length; i++) {
+          var box = raceItemBoxes[i];
+          if (box.taken) continue;
+          if (Math.hypot(car.x - box.x, car.y - box.y) < 20) {
+            var cap = car.isPlayer ? currentItemCapacity() : 1;
+            if (car.heldItems.length < cap) {
+              var kind = Math.random() < 0.5 ? "banana" : "spike";
+              car.heldItems.push(kind);
+              box.taken = true;
+              box.respawnAt = raceTimer + 8;
+            }
+          }
+        }
+        for (var j = 0; j < raceCoins.length; j++) {
+          var coin = raceCoins[j];
+          if (coin.taken) continue;
+          if (Math.hypot(car.x - coin.x, car.y - coin.y) < 16) {
+            coin.taken = true;
+            if (car.isPlayer) { state.coins += 5; }
+          }
+        }
+      }
+
+      function useItem(car) {
+        if (!car.heldItems.length) return;
+        var kind = car.heldItems.shift();
+        if (kind === "banana") {
+          thrownItems.push({
+            kind: "banana",
+            x: car.x - Math.cos(car.angle) * 22,
+            y: car.y - Math.sin(car.angle) * 22,
+            vx: 0, vy: 0, life: 20, owner: car
+          });
+        } else {
+          thrownItems.push({
+            kind: "spike",
+            x: car.x + Math.cos(car.angle) * 22,
+            y: car.y + Math.sin(car.angle) * 22,
+            vx: Math.cos(car.angle) * 420, vy: Math.sin(car.angle) * 420,
+            life: 3, owner: car
+          });
+        }
+      }
+
+      function updateThrownItems(dt) {
+        for (var i = thrownItems.length - 1; i >= 0; i--) {
+          var item = thrownItems[i];
+          item.x += item.vx * dt;
+          item.y += item.vy * dt;
+          item.life -= dt;
+          var hit = false;
+          for (var c = 0; c < cars.length; c++) {
+            var car = cars[c];
+            if (car === item.owner || car.spinTimer > 0 || car.finished) continue;
+            if (Math.hypot(car.x - item.x, car.y - item.y) < 18) {
+              car.spinTimer = SPIN_DURATION;
+              car.speed *= 0.2;
+              hit = true;
+              break;
+            }
+          }
+          if (hit || item.life <= 0) thrownItems.splice(i, 1);
+        }
+      }
+
+      // ================= input =================
+      var keys = {};
+      var joyVec = { x: 0, y: 0 };
+      function getPlayerInput() {
+        var turn = 0, accel = false, brake = false;
+        if (keys["arrowleft"] || keys["a"]) turn -= 1;
+        if (keys["arrowright"] || keys["d"]) turn += 1;
+        if (keys["arrowup"] || keys["w"]) accel = true;
+        if (keys["arrowdown"] || keys["s"]) brake = true;
+        if (!accel && !brake && (joyVec.x !== 0 || joyVec.y !== 0)) {
+          turn = joyVec.x;
+          if (joyVec.y < -0.15) accel = true;
+          else if (joyVec.y > 0.15) brake = true;
+        }
+        return { turn: turn, accel: accel, brake: brake };
+      }
+
+      // ================= main race loop =================
+      function updateRace(dt) {
+        raceTimer += dt;
+
+        var playerInput = getPlayerInput();
+        for (var i = 0; i < cars.length; i++) {
+          var car = cars[i];
+          var input = car.isPlayer ? playerInput : aiInput(car);
+          updateCar(car, dt, input);
+          pickupCheck(car);
+        }
+        updateThrownItems(dt);
+
+        for (var b = 0; b < raceItemBoxes.length; b++) {
+          var box = raceItemBoxes[b];
+          if (box.taken && raceTimer >= box.respawnAt) box.taken = false;
+        }
+
+        updateRaceHud();
+
+        var allDone = cars.every(function (c) { return c.finished; });
+        if ((allDone || raceTimer >= RACE_TIMEOUT) && !raceFinished) {
+          finishRace();
+        }
+      }
+
+      function finishRace() {
+        raceFinished = true;
+        var standings = currentStandings();
+        standings.forEach(function (c, idx) {
+          if (!c.finished) { c.finished = true; c.finishRank = idx + 1; finishOrder.push(c); }
+        });
+        finishOrder = standings;
+
+        var placement = playerPosition();
+        var coinAwards = [60, 45, 32, 22, 14, 8];
+        var earned = coinAwards[Math.min(placement, coinAwards.length) - 1] || 5;
+        state.coins += earned;
+
+        if (!state.bestPlacement[raceIndex] || placement < state.bestPlacement[raceIndex]) {
+          state.bestPlacement[raceIndex] = placement;
+        }
+
+        var unlockedColor = null;
+        if (placement === 1 && state.wonRaces.indexOf(raceIndex) === -1) {
+          state.wonRaces.push(raceIndex);
+          var exclusive = EXCLUSIVE_COLORS.filter(function (c) { return c.race === raceIndex; })[0];
+          if (exclusive) { state.unlockedColorIds.push(exclusive.id); unlockedColor = exclusive; }
+        }
+
+        if (raceIndex === state.unlockedRace && state.unlockedRace < TOTAL_RACES) {
+          state.unlockedRace++;
+        }
+        saveState();
+
+        showResults(placement, earned, unlockedColor);
+      }
+
+      // ================= rendering =================
+      var canvas, ctx;
+      function initCanvas() {
+        canvas = document.getElementById("raceCanvas");
+        ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var player = cars[0];
+        ctx.save();
+        ctx.translate(canvas.width / 2 - player.x, canvas.height / 2 - player.y);
+
+        ctx.fillStyle = "#6fbf6f";
+        ctx.fillRect(player.x - canvas.width, player.y - canvas.height, canvas.width * 2, canvas.height * 2);
+
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = track.roadWidth;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        track.renderPath.forEach(function (p, i) { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.strokeStyle = "#ffe066";
+        ctx.lineWidth = 4;
+        ctx.setLineDash([14, 14]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        var startP = track.waypoints[0];
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(startP.x - track.roadWidth / 2, startP.y - 4, track.roadWidth, 8);
+
+        raceCoins.forEach(function (c) {
+          if (c.taken) return;
+          ctx.fillStyle = "#ffd700";
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        raceItemBoxes.forEach(function (b) {
+          if (b.taken) return;
+          ctx.fillStyle = "#ff8c42";
+          ctx.fillRect(b.x - 8, b.y - 8, 16, 16);
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(b.x - 8, b.y - 8, 16, 16);
+        });
+
+        thrownItems.forEach(function (item) {
+          ctx.fillStyle = item.kind === "banana" ? "#f4d03f" : "#333";
+          ctx.beginPath();
+          ctx.arc(item.x, item.y, item.kind === "banana" ? 8 : 6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        cars.forEach(function (car) { drawCarSprite(car); });
+
+        ctx.restore();
+      }
+
+      function drawCarSprite(car) {
+        ctx.save();
+        ctx.translate(car.x, car.y);
+        ctx.rotate(car.angle + Math.PI / 2);
+        if (car.spinTimer > 0) ctx.rotate(car.spinTimer * 20);
+        var rows = CAR_TEMPLATE.length, cols = CAR_TEMPLATE[0].length;
+        var w = cols * PIXEL, h = rows * PIXEL;
+        var bodyColor = car.color === "rainbow" ? rainbowHex() : car.color;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var ch = CAR_TEMPLATE[r][c];
+            if (ch === ".") continue;
+            ctx.fillStyle = ch === "B" ? bodyColor : ch === "W" ? car.windshieldColor : "#222";
+            ctx.fillRect(-w / 2 + c * PIXEL, -h / 2 + r * PIXEL, PIXEL, PIXEL);
+          }
+        }
+        ctx.restore();
+      }
+
+      function rainbowHex() {
+        var hue = (Date.now() / 8) % 360;
+        return "hsl(" + hue + ",90%,55%)";
+      }
+
+      // ================= HUD =================
+      function updateRaceHud() {
+        var player = cars[0];
+        document.getElementById("hudRaceNum").textContent = raceIndex;
+        document.getElementById("hudLap").textContent = Math.min(LAPS, player.lap + 1);
+        document.getElementById("hudPosition").textContent = playerPosition();
+        document.getElementById("hudItem").textContent = player.heldItems.length ? player.heldItems.join(", ") : "none";
+      }
+
+      // ================= game loop =================
+      var lastTime = null;
+      function gameLoop(timestamp) {
+        requestAnimationFrame(gameLoop);
+        if (lastTime === null) lastTime = timestamp;
+        var dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+        lastTime = timestamp;
+
+        try {
+          if (currentScreen === "race" && track && !raceFinished) {
+            updateRace(dt);
+            render();
+          } else if (currentScreen === "race" && track) {
+            render();
+          }
+        } catch (e) {
+          console.error("Racing game frame error:", e);
+        }
+      }
+
+      // ================= screens =================
+      var currentScreen = "hub";
+      function showScreen(name) {
+        currentScreen = name;
+        document.getElementById("hub").style.display = name === "hub" ? "block" : "none";
+        document.getElementById("raceScreen").style.display = name === "race" ? "block" : "none";
+        document.getElementById("resultsScreen").style.display = name === "results" ? "block" : "none";
+      }
+
+      function showResults(placement, earned, unlockedColor) {
+        showScreen("results");
+        var ord = ["1st", "2nd", "3rd", "4th", "5th", "6th"][placement - 1] || placement + "th";
+        document.getElementById("resultsTitle").textContent = "You finished " + ord + "!";
+        var list = document.getElementById("standingsList");
+        list.innerHTML = "";
+        finishOrder.forEach(function (c, idx) {
+          var li = document.createElement("li");
+          if (c.isPlayer) li.className = "you";
+          li.textContent = (idx + 1) + ". " + (c.isPlayer ? "You (" + state.animal + ")" : "Racer " + (idx + 1));
+          list.appendChild(li);
+        });
+        document.getElementById("resultsCoinLine").textContent = "+" + earned + " coins earned";
+        document.getElementById("resultsUnlockLine").textContent = unlockedColor ? "New exclusive color unlocked: " + unlockedColor.name + "!" : "";
+      }
+
+      function renderHub() {
+        document.getElementById("animalName").textContent = state.animal;
+        document.getElementById("coinTotal").textContent = state.coins;
+
+        var swatchWrap = document.getElementById("colorSwatches");
+        swatchWrap.innerHTML = "";
+        BASE_COLORS.forEach(function (c) { addSwatch(swatchWrap, c.hex, c.hex, true); });
+        EXCLUSIVE_COLORS.forEach(function (c) {
+          var unlocked = state.unlockedColorIds.indexOf(c.id) !== -1;
+          addSwatch(swatchWrap, c.id === "rainbow" ? "rainbow" : c.hex, c.name, unlocked);
+        });
+
+        document.getElementById("speedLevel").textContent = state.upgrades.speed;
+        document.getElementById("handlingLevel").textContent = state.upgrades.handling;
+        document.getElementById("itemsLevel").textContent = state.upgrades.items;
+        setupUpgradeButton("speed", "buySpeed", "speedCost");
+        setupUpgradeButton("handling", "buyHandling", "handlingCost");
+        setupUpgradeButton("items", "buyItems", "itemsCost");
+
+        var grid = document.getElementById("raceGrid");
+        grid.innerHTML = "";
+        for (var i = 1; i <= TOTAL_RACES; i++) {
+          var slot = document.createElement("div");
+          var unlocked = i <= state.unlockedRace;
+          slot.className = "race-slot" + (unlocked ? " unlocked" : "");
+          var best = state.bestPlacement[i];
+          var won = state.wonRaces.indexOf(i) !== -1;
+          slot.innerHTML = "Race " + i + (won ? " <span class=\"trophy\">🏆</span>" : "") +
+            (best ? "<span class=\"best\">Best: " + best + "</span>" : "<span class=\"best\">&nbsp;</span>");
+          if (unlocked) {
+            slot.addEventListener("click", function (idx) { return function () { startRace(idx); }; }(i));
+          }
+          grid.appendChild(slot);
+        }
+      }
+
+      function addSwatch(wrap, hex, title, unlocked) {
+        var el = document.createElement("div");
+        el.className = "color-swatch" + (unlocked ? "" : " locked");
+        el.title = title;
+        el.style.background = hex === "rainbow" ? "conic-gradient(red,orange,yellow,green,blue,violet,red)" : hex;
+        if (state.activeColorHex === hex) el.classList.add("active");
+        if (unlocked) {
+          el.addEventListener("click", function () {
+            state.activeColorHex = hex;
+            saveState();
+            renderHub();
+          });
+        }
+        wrap.appendChild(el);
+      }
+
+      function setupUpgradeButton(kind, btnId, costId) {
+        var level = state.upgrades[kind];
+        var maxed = level >= maxLevel(kind);
+        var cost = upgradeCost(kind, level);
+        document.getElementById(costId).textContent = maxed ? "MAX" : cost;
+        var btn = document.getElementById(btnId);
+        btn.disabled = maxed || state.coins < cost;
+        btn.onclick = function () {
+          if (state.coins < cost || maxed) return;
+          state.coins -= cost;
+          state.upgrades[kind]++;
+          saveState();
+          renderHub();
+        };
+      }
+
+      // ================= input wiring =================
+      window.addEventListener("keydown", function (e) {
+        keys[e.key.toLowerCase()] = true;
+        if (e.key === " " && currentScreen === "race") { useItem(cars[0]); e.preventDefault(); }
+      });
+      window.addEventListener("keyup", function (e) { keys[e.key.toLowerCase()] = false; });
+
+      document.getElementById("itemBtn").addEventListener("click", function () {
+        if (currentScreen === "race" && cars[0]) useItem(cars[0]);
+      });
+
+      var joystick = document.getElementById("joystick");
+      var joystickKnob = document.getElementById("joystickKnob");
+      var joyActive = false, joyCenter = { x: 0, y: 0 };
+      var JOY_RADIUS = 40;
+      function joyStart(cx, cy) {
+        var rect = joystick.getBoundingClientRect();
+        joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        joyActive = true;
+        joyMove(cx, cy);
+      }
+      function joyMove(cx, cy) {
+        if (!joyActive) return;
+        var dx = cx - joyCenter.x, dy = cy - joyCenter.y;
+        var dist = Math.min(JOY_RADIUS, Math.hypot(dx, dy));
+        var angle = Math.atan2(dy, dx);
+        var kx = Math.cos(angle) * dist, ky = Math.sin(angle) * dist;
+        joystickKnob.style.left = (32 + kx) + "px";
+        joystickKnob.style.top = (32 + ky) + "px";
+        joyVec.x = kx / JOY_RADIUS;
+        joyVec.y = ky / JOY_RADIUS;
+      }
+      function joyEnd() {
+        joyActive = false;
+        joyVec.x = 0; joyVec.y = 0;
+        joystickKnob.style.left = "32px";
+        joystickKnob.style.top = "32px";
+      }
+      joystick.addEventListener("touchstart", function (e) { joyStart(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchmove", function (e) { joyMove(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+      joystick.addEventListener("touchend", function (e) { joyEnd(); e.preventDefault(); }, { passive: false });
+
+      document.getElementById("continueBtn").addEventListener("click", function () {
+        showScreen("hub");
+        renderHub();
+      });
+
+      // ================= boot =================
+      if (!loadState()) newRun();
+      initCanvas();
+      renderHub();
+      showScreen("hub");
+      requestAnimationFrame(gameLoop);
+    </script>
+  </body>
+</html>
